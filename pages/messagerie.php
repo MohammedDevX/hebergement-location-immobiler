@@ -261,19 +261,5 @@
     </div>
 
     <script src="../assets/js/messagerie.js"></script>
-    <script>
-        // Script pour ajuster la hauteur du conteneur principal en fonction de la navbar
-        document.addEventListener('DOMContentLoaded', function() {
-            function adjustHeight() {
-                const navbarHeight = document.querySelector('.navbar-container').offsetHeight;
-                const windowHeight = window.innerHeight;
-                document.getElementById('main-container').style.height = (windowHeight - navbarHeight) + 'px';
-            }
-            
-            // Ajuster la hauteur au chargement et au redimensionnement
-            adjustHeight();
-            window.addEventListener('resize', adjustHeight);
-        });
-    </script>
 </body>
 </html>
