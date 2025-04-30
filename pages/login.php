@@ -1,37 +1,27 @@
-<?php 
-require "../includes/connection.php";
-if (isset($_POST["email"]) && isset($_POST["password"])) {
-    $email = $_POST["email"];
-    $pass = $_POST["password"];
-    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        
-    }
-    if (filter_var($email, FILTER_VALIDATE_EMAIL) && preg_match("/^(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/", $password)) { // Type email et mot de pass>=8 et aux moins 1 numero et aux moin un char specaile 
-        // $passHache = password_hash($pass, PASSWORD_DEFAULT);
-        $query = "SELECT * FROM utilisateur WHERE email=:email";
-        $stmt = $conn->prepare($query);
-        $stmt->bindParam(':email', $email);
-        $stmt->execute();
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        // echo $data["email"];
-        // echo $data["mot_pass"];
-        if ($data) {
-            if ($pass == $data["mot_passe"]) {
-                echo $stmt->rowCount();
-            } else {
-                header("Location:Login.html");
-                die();
-            }
-        } else {
-            header("Location:login.html");
-            die();
+<?php session_start() ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="testLogin.php" method="post">
+        email : <input type="text" name="email" required > <br>
+        password : <input type="password" name="password" required> <br>
+        <input type="submit" value="login">
+    </form>
+        <?php
+    if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
+        echo '<div class="errors" style="color: red; border: 1px solid red; padding: 10px;">';
+        foreach ($_SESSION['errors'] as $error) {
+            echo "<p>$error</p>";
         }
-    } else {
-        header("Location:login.html");
-        die();
+        echo '</div>';
+        // Supprimer les erreurs après les avoir affichées
+        unset($_SESSION['errors']);
     }
-} else {
-    header("Location:login.html");
-    die();
-}
-?>
+    ?>
+</body>
+</html>
