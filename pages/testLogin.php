@@ -28,9 +28,9 @@ if (isset($_POST["email"]) && isset($_POST["password"])) {
 
         // Vérification du mot de passe
         if (password_verify($pass, $data["mot_passe"])) { // Fonction qui comparer entre un string et un hash
-            // $_SESSION['user'] = $data; // Enregistrer l'utilisateur dans la session
+            $_SESSION['user_id'] = $data; // Enregistrer l'utilisateur dans la session
             // header("Location: dashboard.php"); // Rediriger vers le dashboard
-            // die();
+            // die;
             echo "nice";
         } else {
             $errors[] = "Email ou mot de passe incorrect.";
