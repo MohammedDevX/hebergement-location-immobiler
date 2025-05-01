@@ -30,11 +30,12 @@ if (isset($_POST["email"])) {
         $stmt->bindParam(':email', $email);
         $stmt->execute();
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        echo "nice";
 
         // Vérification du mot de passe
-        if ($data && $pass==$data["mot_passe"]) {
+        if (password_verify($pass, $data["mot_passe"])) {
             // Si l'utilisateur est trouvé et que le mot de passe est correct
-            $_SESSION['user'] = $data; // Enregistrer l'utilisateur dans la session
+            // $_SESSION['user'] = $data; // Enregistrer l'utilisateur dans la session
             // header("Location: dashboard.php"); // Rediriger vers le dashboard
             // die();
             echo "nice";
@@ -47,7 +48,7 @@ if (isset($_POST["email"])) {
     // Si des erreurs existent, les enregistrer dans la session et rediriger vers la page de login
     if (!empty($errors)) {
         $_SESSION["errors"] = $errors;
-        print_r($errors);
+        // print_r($errors);
         header("Location:login.php");
         die();
     }

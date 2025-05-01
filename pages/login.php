@@ -10,7 +10,8 @@
     <form action="testLogin.php" method="post">
         email : <input type="text" name="email" required > <br>
         password : <input type="password" name="password" required> <br>
-        <input type="submit" value="login">
+        <input type="submit" value="login"> <br>
+        <a href="comfirmeEmail.php">Mot de passe oubliée</a>
     </form>
         <?php
     if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
