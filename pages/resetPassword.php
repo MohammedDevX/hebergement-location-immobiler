@@ -7,12 +7,11 @@ if (isset($_POST['email'], $_POST['password']) && !empty($_POST['email']) && !em
     $newPassword = password_hash($_POST['password'], PASSWORD_DEFAULT); // Hasher le mot de passe
 
     // Mettre à jour le mot de passe
-    $query = "UPDATE locataire SET mot_passe = :mot_passe WHERE email = :email";
+    $query = "UPDATE utilisateur SET mot_passe = :mot_passe WHERE email = :email";
     $stmt = $conn->prepare($query);
     $stmt->bindParam(":email", $email);
     $stmt->bindParam(":mot_passe", $newPassword);
     $stmt->execute();
-    $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if ($stmt->rowCount()) {
         echo "Mot de passe mis à jour avec succès. <a href='login.php'>Se connecter</a>";

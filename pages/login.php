@@ -11,16 +11,17 @@
         email : <input type="text" name="email" required > <br>
         password : <input type="password" name="password" required> <br>
         <input type="submit" value="login"> <br>
-        <a href="comfirmeEmail.php">Mot de passe oubliée</a>
+        <a href="comfirmeEmail.html">Mot de passe oubliée</a>
     </form>
         <?php
+        // Afficheges des erreurs : 
     if (isset($_SESSION['errors']) && !empty($_SESSION['errors'])) {
         echo '<div class="errors" style="color: red; border: 1px solid red; padding: 10px;">';
         foreach ($_SESSION['errors'] as $error) {
             echo "<p>$error</p>";
         }
         echo '</div>';
-        // Supprimer les erreurs après les avoir affichées
+        // Supprimer les erreurs apres les affiches :
         unset($_SESSION['errors']);
     }
     ?>

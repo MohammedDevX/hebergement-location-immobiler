@@ -3,5 +3,3 @@
     Nouveau mot de passe : <input type="password" name="password"><br>
     <input type="submit" value="Changer le mot de passe">
 </form>
-<?php 
-print_r($_GET);
