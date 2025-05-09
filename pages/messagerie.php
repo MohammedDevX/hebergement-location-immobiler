@@ -1,3 +1,11 @@
+<?php  
+require '../includes/connection.php';
+$qeury = "SELECT * 
+FROM utilisateur u INNER JOIN locataire l ON u.id_user=l.id_user INNER JOIN hote h ON u.id_user=h.id_user INNER JOIN message m ON u.id_user=m.id_expediteur AND u.id_user=m.id_destinataire 
+WHERE u.id_user=1
+ORDER BY DESC message.created_at;"
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
