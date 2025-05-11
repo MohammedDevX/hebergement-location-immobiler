@@ -5,7 +5,7 @@ require_once '../includes/connection.php';
 $errors = []; // Tableaux pour stocker les erreurs 
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $nom_user = $_POST["nom_user"] ?? ''; // Si le champs est vide ou null il retourne ''
+    $nom_user = trim($_POST["nom_user"] ?? ''); // Si le champs est vide ou null il retourne ''
     $nom = trim($_POST["nom"] ?? '');
     $prenom = trim($_POST["prenom"] ?? '');
     $email = trim($_POST["email"] ?? '');
@@ -22,6 +22,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $errors[] = "Email invalide";
         }
 
+        if (!preg_match("/^(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{3,}$/", $nom_user)) {
+            $errors[] = "Username invalide (min 3 caractères, 1 chiffre, 1 caractère spécial)";
+        }
+
         if (!preg_match("/^(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/", $mot_passe)) {
             $errors[] = "Mot de passe invalide (min 8 caractères, 1 chiffre, 1 caractère spécial)";
         }
@@ -33,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Verifier si exists : nom_user, email, tel
     if (empty($errors)) {
-        $query = "SELECT * FROM utilisateur WHERE email = :email OR tel = :tel OR nom_user = :nom_user";
+        $query = "SELECT * FROM locataire WHERE email = :email OR tel = :tel OR nom_user = :nom_user";
         $stmt = $conn->prepare($query);
         $stmt->bindParam(":email", $email);
         $stmt->bindParam(":tel", $tel);
@@ -56,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (!empty($errors)) {
         $_SESSION['errors'] = $errors;
-        header("Location: signup.php");
+        header("Location:acceuille.php");
         die;
     }
 
@@ -72,7 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (!move_uploaded_file($photo['tmp_name'], $destination)) {
         $_SESSION['errors'] = ["Erreur lors du téléchargement de la photo."];
-        header("Location: signup.php");
+        header("Location: acceuille.php");
         die;
     }
 
@@ -81,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Insertion dans utilisateur : 
     $hashed_password = password_hash($mot_passe, PASSWORD_DEFAULT);
 
-    $query = "INSERT INTO utilisateur (nom_user, nom, prenom, email, mot_passe, tel, photo_profil, created_at, updated_at)
+    $query = "INSERT INTO locataire (nom_user, nom, prenom, email, mot_passe, tel, photo_profil, created_at, updated_at)
             VALUES (:nom_user, :nom, :prenom, :email, :mot_passe, :tel, :photo_profil, NOW(), NOW())";
     $stmt = $conn->prepare($query);
     $stmt->bindParam(":nom_user", $nom_user);
@@ -93,16 +97,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt->bindParam(":photo_profil", $photo_path);
     $stmt->execute();
 
-    // Insertion dans locataire
-    $id_user = $conn->lastInsertId();
-    $queryLoc = "INSERT INTO locataire (id_user, created_at, updated_at) VALUES (:id_user, NOW(), NOW())";
-    $stmtLoc = $conn->prepare($queryLoc);
-    $stmtLoc->bindParam(":id_user", $id_user);
-    $stmtLoc->execute();
-
-    header("Location: login.php");
+    header("Location: acceuille.php");
     die;
 } else {
-    header("Location: signup.php");
+    header("Location: acceuille.php");
     die;
 }

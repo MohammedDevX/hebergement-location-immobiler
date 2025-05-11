@@ -19,7 +19,7 @@ if (isset($_POST["email"]) && isset($_POST["password"])) {
     if (empty($errors)) {
         require "../includes/connection.php";
         $query = "SELECT * 
-        FROM utilisateur INNER JOIN locataire ON utilisateur.id_user=locataire.id_user
+        FROM locataire
         WHERE email = :email";
         $stmt = $conn->prepare($query);
         $stmt->bindParam(':email', $email);
@@ -29,9 +29,8 @@ if (isset($_POST["email"]) && isset($_POST["password"])) {
         // Vérification du mot de passe
         if (password_verify($pass, $data["mot_passe"])) { // Fonction qui comparer entre un string et un hash
             $_SESSION['user_id'] = $data; // Enregistrer l'utilisateur dans la session
-            // header("Location: dashboard.php"); // Rediriger vers le dashboard
-            // die;
-            echo "nice";
+            header("Location: profile.php"); // Rediriger vers le profile
+            die;
         } else {
             $errors[] = "Email ou mot de passe incorrect.";
         }
@@ -41,12 +40,12 @@ if (isset($_POST["email"]) && isset($_POST["password"])) {
     // Si des erreurs existent, les enregistrer dans la session et rediriger vers la page de login
     if (!empty($errors)) {
         $_SESSION["errors"] = $errors;
-        header("Location:login.php");
+        header("Location:acceuille.php");
         die();
     }
 
 } else {
-    header("Location: login.php");
+    header("Location:acceuille.php");
     die();
 }
 ?>

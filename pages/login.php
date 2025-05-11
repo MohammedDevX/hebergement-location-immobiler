@@ -1,4 +1,3 @@
-<?php session_start() ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,7 +7,7 @@
 </head>
 <body>
     <form action="testLogin.php" method="post">
-        email : <input type="text" name="email" required > <br>
+        username : <input type="text" name="nom_user" required > <br>
         password : <input type="password" name="password" required> <br>
         <input type="submit" value="login"> <br>
         <a href="comfirmeEmail.html">Mot de passe oubliée</a>

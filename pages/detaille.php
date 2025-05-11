@@ -1,10 +1,10 @@
 <?php  
 require "../includes/connection.php";
 
-$query = "SELECT annonce.*, hote.created_at, ville.nom_ville, utilisateur.nom, utilisateur.prenom, utilisateur.photo_profil
+$query = "SELECT annonce.*, hote.created_at, ville.nom_ville, locataire.nom, locataire.prenom, locataire.photo_profil
           FROM annonce INNER JOIN ville ON annonce.id_ville=ville.id_ville 
           INNER JOIN hote ON annonce.id_hote=hote.id_hote 
-          INNER JOIN utilisateur ON hote.id_user=utilisateur.id_user
+          INNER JOIN locataire ON hote.id_locataire=locataire.id_locataire
           WHERE annonce.id_annonce=1";
 $stmt = $conn->prepare($query);
 $stmt->execute();
@@ -22,9 +22,9 @@ $stmt = $conn->prepare($query2);
 $stmt->execute();
 $data2 = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $tab = end($data2);
-// print_r($data2);
+print_r($data2);
 
-$query3 = "SELECT date_indispo
+$query3 = "SELECT date_dispo
             FROM disponibilite
             WHERE id_annonce=1";
 $stmt=$conn->prepare($query3);
@@ -84,7 +84,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
       />
     </div>
     <div class="grid grid-cols-2 gap-2 h-64 sm:h-80 md:h-96">
-      <?php for ($i=1; $i< $stmt->rowCount()-2; $i++) { ?>
+      <?php for ($i=1; $i< $stmt->rowCount(); $i++) { ?>
         <div class='overflow-hidden rounded-lg'>
           <img 
             src="<?php echo $data2[$i]["photo"] ?>" 
@@ -757,9 +757,8 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
       </div>
     </div>
 
-
-      <script>
-        document.addEventListener("DOMContentLoaded", function () {
+<script>
+      document.addEventListener("DOMContentLoaded", function () {
   // Configuration initiale
   const PRICE_PER_NIGHT = <?php echo $data[0]["prix_nuit"] ?>;
   const SERVICE_FEE = 10;
@@ -786,46 +785,46 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
   // Jours de la semaine en français (version courte)
   const weekDaysShort = ["Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam.", "Dim."];
   
-  // NOUVELLE PARTIE: Récupération des dates indisponibles depuis PHP
+  // PARTIE MODIFIÉE: Récupération des dates indisponibles depuis PHP
   // ---------------------------------------------------------------
   // Déclaration de la variable $data3 (simulée pour l'exemple)
   const unavailableDatesData = <?php echo $data3; ?>;
-console.log("Dates indisponibles récupérées:", unavailableDatesData);
-const unavailableDates = parseUnavailableDates(unavailableDatesData);
+  console.log("Dates indisponibles récupérées:", unavailableDatesData);
+  const unavailableDates = parseUnavailableDates(unavailableDatesData);
 
   // Fonction pour convertir les dates indisponibles du format JSON en objets Date
   function parseUnavailableDates(dateArray) {
-  const unavailableDates = [];
-  
-  // Vérifier si dateArray est un tableau valide
-  if (!Array.isArray(dateArray)) {
-    console.error("Les données de dates indisponibles ne sont pas un tableau valide:", dateArray);
+    const unavailableDates = [];
+    
+    // Vérifier si dateArray est un tableau valide
+    if (!Array.isArray(dateArray)) {
+      console.error("Les données de dates indisponibles ne sont pas un tableau valide:", dateArray);
+      return unavailableDates;
+    }
+    
+    dateArray.forEach(item => {
+      if (item && item.date_dispo) { // MODIFIÉ: date_indispo -> date_dispo
+        try {
+          const dateParts = item.date_dispo.split('-'); // MODIFIÉ: date_indispo -> date_dispo
+          if (dateParts.length === 3) {
+            const year = parseInt(dateParts[0]);
+            const month = parseInt(dateParts[1]) - 1; // Les mois sont indexés à partir de 0
+            const day = parseInt(dateParts[2]);
+            
+            // Vérifier que les valeurs sont valides
+            if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+              unavailableDates.push(new Date(year, month, day));
+            }
+          }
+        } catch (error) {
+          console.error("Erreur lors du traitement de la date:", item.date_dispo, error); // MODIFIÉ: date_indispo -> date_dispo
+        }
+      }
+    });
+    
+    console.log("Dates indisponibles traitées:", unavailableDates);
     return unavailableDates;
   }
-  
-  dateArray.forEach(item => {
-    if (item && item.date_indispo) {
-      try {
-        const dateParts = item.date_indispo.split('-');
-        if (dateParts.length === 3) {
-          const year = parseInt(dateParts[0]);
-          const month = parseInt(dateParts[1]) - 1; // Les mois sont indexés à partir de 0
-          const day = parseInt(dateParts[2]);
-          
-          // Vérifier que les valeurs sont valides
-          if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
-            unavailableDates.push(new Date(year, month, day));
-          }
-        }
-      } catch (error) {
-        console.error("Erreur lors du traitement de la date:", item.date_indispo, error);
-      }
-    }
-  });
-  
-  console.log("Dates indisponibles traitées:", unavailableDates);
-  return unavailableDates;
-}
 
   // Fonction pour vérifier si une date est indisponible
   function isDateUnavailable(date) {
@@ -836,7 +835,7 @@ const unavailableDates = parseUnavailableDates(unavailableDatesData);
     );
   }
   // ---------------------------------------------------------------
-  // FIN DE LA NOUVELLE PARTIE
+  // FIN DE LA PARTIE MODIFIÉE
   
   // Initialiser le calendrier
   function initCalendar() {
@@ -1151,20 +1150,40 @@ const unavailableDates = parseUnavailableDates(unavailableDatesData);
       
       // Vérifier que la date de fin est chronologiquement après la date de début
       if (clickedDate > startDate) {
-        dayElement.classList.add("day-selected");
-        endDate = clickedDate;
-        endMonth = month;
-        
-        // Marquer les jours entre les deux dates
-        markDaysInRange();
-        
-        // Mettre à jour l'affichage
-        updateDateDisplay();
-        updatePriceDisplay();
-        
-        console.log("Plage sélectionnée:", formatDate(startDate), "à", formatDate(endDate));
+        // AJOUT: Vérifier qu'aucune date entre startDate et clickedDate n'est indisponible
+        if (!areDatesInRangeUnavailable(startDate, clickedDate)) {
+          dayElement.classList.add("day-selected");
+          endDate = clickedDate;
+          endMonth = month;
+          
+          // Marquer les jours entre les deux dates
+          markDaysInRange();
+          
+          // Mettre à jour l'affichage
+          updateDateDisplay();
+          updatePriceDisplay();
+          
+          console.log("Plage sélectionnée:", formatDate(startDate), "à", formatDate(endDate));
+        } else {
+          alert("Il y a des dates indisponibles dans la plage sélectionnée. Veuillez choisir une autre plage.");
+        }
       }
     }
+  }
+  
+  // AJOUT: Vérifier si des dates dans la plage sont indisponibles
+  function areDatesInRangeUnavailable(start, end) {
+    const currentDate = new Date(start);
+    currentDate.setDate(currentDate.getDate() + 1); // Commencer au jour après la date de début
+    
+    while (currentDate < end) {
+      if (isDateUnavailable(currentDate)) {
+        return true;
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return false;
   }
   
   // Marquer les jours dans la plage sélectionnée
@@ -1200,19 +1219,19 @@ const unavailableDates = parseUnavailableDates(unavailableDatesData);
   // Mettre à jour l'affichage des dates
   function updateDateDisplay() {
     if (startDate) {
-      startDateElement.textContent = formatDate(startDate, "dd/mm/yyyy");
+      if (startDateElement) startDateElement.textContent = formatDate(startDate, "dd/mm/yyyy");
       
       if (endDate) {
-        endDateElement.textContent = formatDate(endDate, "dd/mm/yyyy");
-        dateRangeDisplay.textContent = `${formatDate(startDate, "d mmm yyyy")} - ${formatDate(endDate, "d mmm yyyy")}`;
+        if (endDateElement) endDateElement.textContent = formatDate(endDate, "dd/mm/yyyy");
+        if (dateRangeDisplay) dateRangeDisplay.textContent = `${formatDate(startDate, "d mmm yyyy")} - ${formatDate(endDate, "d mmm yyyy")}`;
       } else {
-        endDateElement.textContent = "--/--/----";
-        dateRangeDisplay.textContent = `${formatDate(startDate, "d mmm yyyy")} - Sélectionnez une date de fin`;
+        if (endDateElement) endDateElement.textContent = "--/--/----";
+        if (dateRangeDisplay) dateRangeDisplay.textContent = `${formatDate(startDate, "d mmm yyyy")} - Sélectionnez une date de fin`;
       }
     } else {
-      startDateElement.textContent = "--/--/----";
-      endDateElement.textContent = "--/--/----";
-      dateRangeDisplay.textContent = "";
+      if (startDateElement) startDateElement.textContent = "--/--/----";
+      if (endDateElement) endDateElement.textContent = "--/--/----";
+      if (dateRangeDisplay) dateRangeDisplay.textContent = "";
     }
   }
   
@@ -1226,33 +1245,41 @@ const unavailableDates = parseUnavailableDates(unavailableDatesData);
       const fraisServ =  totalPlusFrais - totalPrice;
       
       // Mettre à jour le prix principal
-      document.querySelector(".text-xl.font-semibold.mb-4.nights").innerHTML = 
-      `${nights} nuits à <?php echo $data[0]["nom_ville"] ?>`;
+      const nightsElement = document.querySelector(".text-xl.font-semibold.mb-4.nights");
+      if (nightsElement) {
+        nightsElement.innerHTML = `${nights} nuits à <?php echo $data[0]["nom_ville"] ?>`;
+      }
       
-      document.querySelector(".text-lg.font-bold").innerHTML =
-        `${totalPrice} DH <span class="text-sm font-normal">pour ${nights} nuits</span>`;
+      const prixElement = document.querySelector(".text-lg.font-bold");
+      if (prixElement) {
+        prixElement.innerHTML = `${totalPrice} DH <span class="text-sm font-normal">pour ${nights} nuits</span>`;
+      }
       
       // Mettre à jour le détail des prix
       const priceDetails = document.querySelectorAll(".space-y-2.text-sm .flex");
       if (priceDetails.length >= 3) {
         priceDetails[0].innerHTML = `<p class="underline">${PRICE_PER_NIGHT} DH x ${nights} nuits</p><p>${totalPrice} DH</p>`;
         priceDetails[1].innerHTML = `<p class="underline">Frais de service</p><p >${fraisServ} DH</p>`;
-        priceDetails[2].innerHTML = `<p>Total</p><p>${totalPlusFrais} €</p>`;
+        priceDetails[2].innerHTML = `<p>Total</p><p>${totalPlusFrais} DH</p>`; // CORRIGÉ: € -> DH
       }
     } else {
-      document.querySelector(".text-xl.font-semibold.mb-4.nights").innerHTML = "Sélectionnez vos dates";
+      const nightsElement = document.querySelector(".text-xl.font-semibold.mb-4.nights");
+      if (nightsElement) {
+        nightsElement.innerHTML = "Sélectionnez vos dates";
+      }
+      
       // Réinitialiser à la valeur par défaut
-      document.querySelector(".text-lg.font-bold").innerHTML =
-        "<span class='text-xxl font-normal'>Indiquez vos dates pour <br> afficher les prix</span>";
+      const prixElement = document.querySelector(".text-lg.font-bold");
+      if (prixElement) {
+        prixElement.innerHTML = "<span class='text-xxl font-normal'>Indiquez vos dates pour <br> afficher les prix</span>";
+      }
       
       const priceDetails = document.querySelectorAll(".space-y-2.text-sm .flex");
-      // if (priceDetails.length >= 3) {
-        // priceDetails[0].innerHTML = '<p class="underline"></p>';
-        // priceDetails[2].innerHTML = "<p>Total</p><p>1 426 €</p>";
-      // }
-      priceDetails[0].innerHTML = '<p class="underline"></p>';
-      priceDetails[1].innerHTML = `<p class="underline">Frais de service</p><p >0 DH</p>`;
-      priceDetails[2].innerHTML = '<p>Total</p><p>0 DH</p>';
+      if (priceDetails.length >= 3) {
+        priceDetails[0].innerHTML = '<p class="underline"></p>';
+        priceDetails[1].innerHTML = `<p class="underline">Frais de service</p><p >0 DH</p>`;
+        priceDetails[2].innerHTML = '<p>Total</p><p>0 DH</p>'; // CORRIGÉ: € -> DH
+      }
     }
   }
   
@@ -1441,6 +1468,16 @@ const unavailableDates = parseUnavailableDates(unavailableDatesData);
       background-color: #ccc;
       transform: rotate(45deg);
     }
+    
+    .day-selected {
+      background-color: #000;
+      color: white;
+      border-radius: 50%;
+    }
+    
+    .day-in-range {
+      background-color: #f3f4f6;
+    }
   `;
   document.head.appendChild(styleElement);
   // ---------------------------------------------------------------
@@ -1449,7 +1486,7 @@ const unavailableDates = parseUnavailableDates(unavailableDatesData);
   // Initialiser le calendrier
   initCalendar();
 });
-      </script>
+</script>
 
   <!-- <script src="../assets/js/detaille.js"></script>  -->
   <!-- <script src="../assets/js/api.js"></script>   -->
