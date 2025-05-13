@@ -1,4 +1,5 @@
-<?php  
+<?php 
+session_start();
 require "../includes/connection.php";
 
 $query = "SELECT annonce.*, hote.created_at, ville.nom_ville, locataire.nom, locataire.prenom, locataire.photo_profil
@@ -22,7 +23,7 @@ $stmt = $conn->prepare($query2);
 $stmt->execute();
 $data2 = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $tab = end($data2);
-print_r($data2);
+// print_r($data2);
 
 $query3 = "SELECT date_dispo
             FROM disponibilite
@@ -59,32 +60,43 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chambre luxury - Riad Chahd Palace - Fès, Maroc</title>
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
-      rel="stylesheet"
-    />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="../assets/css/detaille.css">
+    <style>
+      @font-face {
+			font-family: 'Krylon';
+			src: url("../assets/fonts/Krylon-Regular.otf") format("opentype");
+			font-weight: 900;
+		}
+		@font-face {
+			font-family: 'Grotesk';
+			src: url("../assets/fonts/Grotesk-Regular.ttf") format("truetype");
+		}
+    </style>
   </head>
-  <body class="bg-white text-gray-900">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<body class="bg-gray-100 font-[Grotesk] text-gray-900">
+    <div class=" mb-10">
+        <?php include "../includes/navbar.php" ?>
+    </div>
+    <div class="px-6 sm:px-6 lg:px-18">
       <!-- Header -->
       <div class="py-4">
-        <h1 class="text-2xl md:text-3xl font-medium"><?php echo $data[0]["titre"] ?></h1>
+        <h1 class="text-4xl md:text-4xl font-[Krylon] font-medium"><?php echo $data[0]["titre"] ?></h1>
       </div>
 
       <!-- Main Gallery -->
       <div class="pt-4">
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-    <div class="md:col-span-2 h-64 sm:h-80 md:h-96 overflow-hidden rounded-lg">
+  <div class="font-[Grotesk] grid grid-cols-1 md:grid-cols-3 gap-2">
+    <div class="md:col-span-2 h-64 sm:h-80 md:h-96 lg:h-150 overflow-hidden rounded-lg">
       <img
         src="<?php echo $data2[0]["photo"] ?>"
         alt="<?php echo $data2[0]["titre"] ?>"
         class="w-full h-full object-cover"
       />
     </div>
-    <div class="grid grid-cols-2 gap-2 h-64 sm:h-80 md:h-96">
-      <?php for ($i=1; $i< $stmt->rowCount(); $i++) { ?>
+    <div class="grid grid-cols-2 gap-2 h-64 sm:h-80 md:h-96 lg:h-150">
+      <?php for ($i=1; $i< count($data2)-1; $i++) { ?>
         <div class='overflow-hidden rounded-lg'>
           <img 
             src="<?php echo $data2[$i]["photo"] ?>" 
@@ -103,7 +115,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
           id="showGalleryBtn"
           class="absolute bottom-2 right-2 left-2 bg-white text-black py-2 px-4 rounded-lg font-medium text-xs sm:text-sm"
         >
-          Afficher toutes les photos
+          Show all photos
         </button>
       </div>
     </div>
@@ -111,7 +123,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
 </div>
 
 <!-- Photo Gallery Modal -->
-<div id="photoGalleryModal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-90 flex items-center justify-center p-4">
+<div id="photoGalleryModal" class="hidden  fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center p-4">
   <div class="relative w-full max-w-7xl mx-auto">
     <!-- Close button -->
     <button id="closeGallery" class="absolute -top-12 right-2 text-white p-2 z-10">
@@ -121,7 +133,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
     </button>
     
     <!-- Gallery grid -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto max-h-[80vh]">
+    <div class="grid grid-cols-2 font-[Grotesk] md:grid-cols-3 lg:grid-cols-4 gap-4 hide-scrollbar overflow-y-auto max-h-[80vh]">
       <?php foreach ($data2 as $index => $image) { ?>
         <div class="gallery-item opacity-0 transform translate-y-4 transition-all duration-300 overflow-hidden rounded-lg">
           <img 
@@ -140,15 +152,14 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
   </div>
 </div>
 
-      <!-- Infos logement -->
+      <!-- Accommodation info -->
       <div class="py-6">
-        <div class="flex flex-col lg:flex-row lg:justify-between">
+        <div class="flex flex-col font-[Grotesk] lg:flex-row lg:justify-between">
           <div class="lg:w-2/3 pr-0 lg:pr-8">
-            <h2 class="text-2xl font-semibold mb-1"><?php echo $data[0]["type_logement"] ?> - <?php echo $data[0]["nom_ville"] ?>, Maroc</h2>
+            <h2 class="text-2xl font-semibold mb-1"><?php echo $data[0]["type_logement"] ?> - <?php echo $data[0]["nom_ville"] ?>, Morocco</h2>
             <p class="text-lg text-gray-700 mb-2">
-              Pour <?php echo $data[0]["capacite"] ?> voyageurs
+              For <?php echo $data[0]["capacite"] ?> travelers
             </p>
-            <label for="avis">
               <div class="flex items-center mb-6">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -160,11 +171,10 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                     d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
                   />
                 </svg>
-                <span class="ml-1 underline">1 commentaire</span>
+                <label for="PopupRev" class="ml-1 underline hover:cursor-pointer">1 review</label>
               </div>
-            </label>
 
-            <!-- Informations hôte -->
+            <!-- Host information -->
             <div class="border-t border-b border-gray-200 py-8 my-8">
               <div class="flex items-center mb-6">
                 <img
@@ -173,16 +183,16 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                   class="w-12 h-12 rounded-full mr-4"
                 />
                 <div>
-                  <h3 class="font-medium">Hôte : <?php echo $data[0]["nom"] ?> <?php echo $data[0]["prenom"] ?></h3>
-                  <p class="text-gray-600">Hôte depuis <?php echo $intervale->format('%y ans, %m mois, %d jours'); ?></p>
+                  <h3 class="font-medium">Host: <?php echo $data[0]["nom"] ?> <?php echo $data[0]["prenom"] ?></h3>
+                  <p class="text-gray-600">Host for <?php echo $intervale->format('%y years, %m months, %d days'); ?></p>
                 </div>
               </div>
-
-              <!-- <div class="space-y-6">
-                <div class="flex items-start">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-6 w-6 mr-4 flex-shrink-0"
+            <!-- Detaille annonce Detaillé sous le Hote -->
+            <!-- <div class="space-y-6">
+              <div class="flex items-start">
+                <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 mr-4 flex-shrink-0"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -195,10 +205,32 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                     />
                   </svg>
                   <div>
-                    <h4 class="font-medium">Chambre dans chambre d'hôtes</h4>
+                    <h4 class="font-medium">Room in guest house</h4>
                     <p class="text-gray-600">
-                      Votre chambre privée dans un logement, avec accès à des
-                      espaces partagés.
+                      Your private room in accommodation, with access to shared spaces.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-start">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-6 w-6 mr-4 flex-shrink-0"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                  <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                    />
+                  </svg>
+                  <div>
+                    <h4 class="font-medium">Shared common spaces</h4>
+                    <p class="text-gray-600">
+                      You will share some parts of the accommodation.
                     </p>
                   </div>
                 </div>
@@ -212,47 +244,24 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                     stroke="currentColor"
                   >
                     <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
                     />
                   </svg>
                   <div>
-                    <h4 class="font-medium">Espaces communs partagés</h4>
+                    <h4 class="font-medium">Shared bathroom</h4>
                     <p class="text-gray-600">
-                      Vous partagerez certaines parties du logement.
+                      You will share the bathroom with other people.
                     </p>
                   </div>
                 </div>
-
+                
                 <div class="flex items-start">
                   <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-6 w-6 mr-4 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                    />
-                  </svg>
-                  <div>
-                    <h4 class="font-medium">Salle de bain partagée</h4>
-                    <p class="text-gray-600">
-                      Vous partagerez la salle de bain avec d'autres personnes.
-                    </p>
-                  </div>
-                </div>
-
-                <div class="flex items-start">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-6 w-6 mr-4 flex-shrink-0"
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 mr-4 flex-shrink-0"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -265,30 +274,30 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                     />
                   </svg>
                   <div>
-                    <h4 class="font-medium">Arrivée autonome</h4>
+                    <h4 class="font-medium">Self check-in</h4>
                     <p class="text-gray-600">
-                      Vous pouvez accéder au logement en faisant appel au
-                      personnel de l'immeuble.
+                      You can access the accommodation by contacting the building staff.
                     </p>
                   </div>
                 </div>
-              </div> -->
+              </div>
+              <!-- Detaille annonce Detaillé sous le Hote -->
             </div>
 
             <!-- Description -->
             <div class="my-8">
-              <h3 class="text-xl font-semibold mb-4">À propos de ce logement</h3>
+              <h3 class="text-xl font-semibold mb-4">About this accommodation</h3>
               <p class="mb-2">
                 <?php echo $data[0]["description_annonce"] ?>
               <!-- <button class="font-medium text-black underline">
-                Lire la suite
+                Read more
               </button> -->
             </div>
 
-            <!-- Ce que propose ce logement -->
+            <!-- What this accommodation offers -->
             <!-- <div class="my-8">
               <h3 class="text-xl font-semibold mb-4">
-                Ce que propose ce logement
+                What this accommodation offers
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="flex items-center">
@@ -306,7 +315,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                       d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                     />
                   </svg>
-                  <span>Serrure ou verrou sur la porte de la chambre</span>
+                  <span>Lock or latch on bedroom door</span>
                 </div>
                 <div class="flex items-center">
                   <svg
@@ -323,18 +332,18 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                       d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
                     />
                   </svg>
-                  <span>Cuisine</span>
+                  <span>Kitchen</span>
                 </div>
               </div>
             </div> -->
 
-            <!-- Calendrier amélioré -->
+            <!-- Improved calendar -->
             <div class="my-8">
               <h3 class="text-xl font-semibold mb-4 nights"> </h3>
-              <p class="text-gray-600 mb-4" id="dateRangeDisplay">11 avr. 2025 - 16 avr. 2025</p>
+              <p class="text-gray-600 mb-4" id="dateRangeDisplay">Apr 11, 2025 - Apr 16, 2025</p>
 
               <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-0">
-                <!-- Navigation du calendrier -->
+                <!-- Calendar navigation -->
                 <div class="w-full flex justify-between items-center mb-4">
                   <button id="prevMonthBtn" class="p-2 text-gray-600 hover:text-black focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -342,8 +351,8 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                     </svg>
                   </button>
                   <div class="flex justify-center space-x-4 sm:space-x-8 md:space-x-16 lg:space-x-32">
-                    <h4 id="month1Title" class="text-base sm:text-lg font-medium">Octobre 2025</h4>
-                    <h4 id="month2Title" class="text-base sm:text-lg font-medium">Novembre 2025</h4>
+                    <h4 id="month1Title" class="text-base sm:text-lg font-medium">October 2025</h4>
+                    <h4 id="month2Title" class="text-base sm:text-lg font-medium">November 2025</h4>
                   </div>
                   <button id="nextMonthBtn" class="p-2 text-gray-600 hover:text-black focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -352,30 +361,30 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                   </button>
                 </div>
 
-                <!-- Premier mois -->
+                <!-- First month -->
                 <div class="w-full md:w-1/2 p-2 md:p-4">
                   <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
-                    <div class="calendar-header text-center">L</div>
                     <div class="calendar-header text-center">M</div>
-                    <div class="calendar-header text-center">M</div>
-                    <div class="calendar-header text-center">J</div>
-                    <div class="calendar-header text-center">V</div>
+                    <div class="calendar-header text-center">T</div>
+                    <div class="calendar-header text-center">W</div>
+                    <div class="calendar-header text-center">T</div>
+                    <div class="calendar-header text-center">F</div>
                     <div class="calendar-header text-center">S</div>
-                    <div class="calendar-header text-center">D</div>
+                    <div class="calendar-header text-center">S</div>
                   </div>
                   <div id="calendar1" class="grid grid-cols-7 gap-1 sm:gap-2"></div>
                 </div>
 
-                <!-- Deuxième mois -->
+                <!-- Second month -->
                 <div class="w-full md:w-1/2 p-2 md:p-4">
                   <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
-                    <div class="calendar-header text-center">L</div>
                     <div class="calendar-header text-center">M</div>
-                    <div class="calendar-header text-center">M</div>
-                    <div class="calendar-header text-center">J</div>
-                    <div class="calendar-header text-center">V</div>
+                    <div class="calendar-header text-center">T</div>
+                    <div class="calendar-header text-center">W</div>
+                    <div class="calendar-header text-center">T</div>
+                    <div class="calendar-header text-center">F</div>
                     <div class="calendar-header text-center">S</div>
-                    <div class="calendar-header text-center">D</div>
+                    <div class="calendar-header text-center">S</div>
                   </div>
                   <div id="calendar2" class="grid grid-cols-7 gap-1 sm:gap-2"></div>
                 </div>
@@ -386,31 +395,148 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                  <span>Effacer les dates</span>
+                  <span>Clear dates</span>
                 </button>
               </div>
             </div>
 
-            <!-- Commentaires -->
-             <label for="avis">
+            <!-- Review Popup -->
+            <input type="radio" id="PopupRev" name="Modal" class="hidden peer/editPrfl">
+            <label for="hide" class="hidden peer-checked/editPrfl:block fixed inset-0 z-40 custom-overlay""></label>
+            <div class="font-[Grotesk] hidden fixed inset-0 peer-checked/editPrfl:flex items-center justify-center min-h-screen z-50 overflow-y-auto pointer-events-none">
+          		<div class="bg-white shadow-md rounded-lg p-6 w-[90%] max-w-lg hide-scrollbar max-h-[80vh] lg:max-w-[70%] md:max-w-[80%] pointer-events-auto overflow-y-auto">
+                <!-- Review 1 -->
+                <div class="bg-white p-6 mb-4 rounded-xl shadow-sm">
+                  <div class="flex items-center mb-4">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx0CIy3mIbpe2nuLRfK5xxPcwxmTvXjJsBNw&s" alt="User" class="w-12 h-12 rounded-full mr-4">
+                    <div>
+                          <h3 class="font-bold text-novanook-teal">Sarah M.</h3>
+                          <div class="flex items-center text-gray-500 text-sm">
+                              <div class="flex text-yellow-400 mr-2">
+                                  <i class="fas fa-star"></i>
+                                  <i class="fa-regular fa-star"></i>
+                                  <i class="fa-regular fa-star"></i>
+                                  <i class="fa-regular fa-star"></i>
+                                  <i class="fa-regular fa-star"></i>
+                              </div>
+                              <span>· March 2023</span>
+                          </div>
+                        </div>
+                      </div>
+                  <h4 class="font-medium text-novanook-teal mb-2">SCAM !!!</h4>
+                  <p class="text-gray-700 mb-4">
+                       No room available upon arrival. An exaggerated day searching for alternative accommodation without getting the money back.It's really a scam to bring tourists to a place that doesn't exist. I would not recommend this host or property to anyone. Extremely disappointing experience.
+                  </p>
+                  <div class="flex space-x-4">
+                      <button class="text-novanook-teal text-sm font-medium">
+                          <i class="far fa-thumbs-up mr-1"></i> Helpful (2)
+                      </button>
+                  </div>
+              </div>
+                <!-- Review 2 -->
+                <div class="bg-white p-6 mb-4 rounded-xl shadow-sm">
+                  <div class="flex items-center mb-4">
+                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="w-12 h-12 rounded-full mr-4">
+                    <div>
+                          <h3 class="font-bold text-novanook-teal">Sarah M.</h3>
+                          <div class="flex items-center text-gray-500 text-sm">
+                              <div class="flex text-yellow-400 mr-2">
+                                  <i class="fas fa-star"></i>
+                                  <i class="fas fa-star"></i>
+                                  <i class="fas fa-star"></i>
+                                  <i class="fas fa-star"></i>
+                                  <i class="fas fa-star"></i>
+                              </div>
+                              <span>· March 2023</span>
+                          </div>
+                        </div>
+                      </div>
+                  <h4 class="font-medium text-novanook-teal mb-2">Perfect mountain getaway!</h4>
+                  <p class="text-gray-700 mb-4">
+                      The villa was absolutely stunning with breathtaking mountain views. Everything was clean, modern, and exactly as pictured.
+                  </p>
+                  <div class="flex space-x-4">
+                      <button class="text-novanook-teal text-sm font-medium">
+                          <i class="far fa-thumbs-up mr-1"></i> Helpful (12)
+                      </button>
+                  </div>
+              </div>
 
-            
+              <!-- Review 3 -->
+              <div class="review bg-white p-6 mb-4 rounded-xl shadow-sm">
+                  <div class="flex items-center mb-4">
+                      <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="w-12 h-12 rounded-full mr-4">
+                      <div>
+                          <h3 class="font-bold text-novanook-teal">Michael T.</h3>
+                          <div class="flex items-center text-gray-500 text-sm">
+                            <div class="flex text-yellow-400 mr-2">
+                              <i class="fas fa-star"></i>
+                              <i class="fas fa-star"></i>
+                              <i class="fas fa-star"></i>
+                              <i class="fas fa-star"></i>
+                              <i class="fas fa-star"></i>
+                            </div>
+                            <span>· February 2023</span>
+                          </div>
+                      </div>
+                    </div>
+                  <h4 class="font-medium text-novanook-teal mb-2">Exceptional experience</h4>
+                  <p class="text-gray-700 mb-4">
+                    From the moment we arrived, we were blown away by the beauty of this property.
+                  </p>
+                  <div class="flex space-x-4">
+                      <button class="text-novanook-teal text-sm font-medium">
+                          <i class="far fa-thumbs-up mr-1"></i> Helpful (8)
+                      </button>
+                  </div>
+              </div>
+              
+              <!-- Review Form -->
+              <div class="bg-white p-6 rounded-xl shadow-sm">
+                <h2 class="text-xl font-bold text-novanook-teal mb-6">Write a Review</h2>
+                <form id="review-form">
+                  <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
+                    <div id="rating-stars" class="flex space-x-2">
+                      <button type="button" class="star text-3xl text-gray-300 hover:text-yellow-400">★</button>
+                      <button type="button" class="star text-3xl text-gray-300 hover:text-yellow-400">★</button>
+                              <button type="button" class="star text-3xl text-gray-300 hover:text-yellow-400">★</button>
+                              <button type="button" class="star text-3xl text-gray-300 hover:text-yellow-400">★</button>
+                              <button type="button" class="star text-3xl text-gray-300 hover:text-yellow-400">★</button>
+                          </div>
+                        </div>
+                      <div class="mb-6">
+                        <label for="review-text" class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                        <input type="review-text" id="review-title" class="w-full px-4 py-3 border rounded-lg" placeholder="Summarize your experience">
+                      </div>
+                      <div class="mb-6">
+                        <label for="review-text" class="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
+                        <textarea id="review-text" rows="5" class="w-full px-4 py-3 border rounded-lg" placeholder="Share your experience"></textarea>
+                      </div>
+                      <button type="submit" class="w-full bg-novanook-teal text-white font-bold py-3 rounded-lg">Submit Review</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+                <!-- Review Popup -->
+                
+            <!-- Comments -->
             <div class="my-8">
-              <h3 class="text-xl font-semibold mb-4">1 commentaire</h3>
+              <h3 class="text-xl font-semibold mb-4">3 reviews</h3>
               <p class="text-gray-600 mb-6">
-                L'évaluation moyenne apparaîtra après 3 commentaires
+                The average rating will appear after 3 reviews
               </p>
 
               <div class="mb-8">
                 <div class="flex items-center mb-2">
                   <img
-                    src="/placeholder.svg?height=40&width=40"
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx0CIy3mIbpe2nuLRfK5xxPcwxmTvXjJsBNw&s"
                     alt="Photo Kim"
                     class="w-10 h-10 rounded-full mr-2"
                   />
                   <div>
                     <h4 class="font-medium">Kim</h4>
-                    <p class="text-sm text-gray-600">10 ans sur Airbnb</p>
+                    <p class="text-sm text-gray-600">10 years on Airbnb</p>
                   </div>
                 </div>
                 <div class="flex items-center mb-2">
@@ -424,48 +550,45 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                       d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
                     />
                   </svg>
-                  <span class="ml-2 text-gray-600">mai 2023</span>
+                  <span class="ml-2 text-gray-600">May 2023</span>
                 </div>
                 <p class="mb-2">
-                  Aucune chambre disponible à l'arrivée Une journée exagérée à la
-                  recherche d'un autre logement sans récupérer l'argent.
+                  No room available upon arrival. An exaggerated day searching for alternative accommodation without getting the money back.
                 </p>
                 <p class="mb-4">
-                  C'est vraiment une arnaque d'emmener les touristes dans u...
+                  It's really a scam to bring tourists to a...
                 </p>
-                <button class="text-black underline">Lire la suite</button>
+                <label for="PopupRev" class=" text-black underline hover:cursor-pointer">Read more</label>
               </div>
 
-              <p class="text-gray-600">Fonctionnement des commentaires</p>
             </div>
-            </label>
 
-            <!-- L'hôte -->
+            <!-- The host -->
             <div class="my-8">
               <h3 class="text-xl font-semibold mb-6">
-                Faites connaissance avec votre hôte
+                Meet your host
               </h3>
 
               <div class="flex flex-col md:flex-row bg-gray-50 rounded-xl p-4 md:p-6">
                 <div class="md:w-1/3 flex flex-col items-center text-center mb-6 md:mb-0">
                   <img
-                    src="/placeholder.svg?height=120&width=120"
+                    src="<?php echo $data[0]["photo_profil"] ?>"
                     alt="Photo Karim"
                     class="w-20 h-20 md:w-24 md:h-24 rounded-full mb-4"
                   />
                   <h4 class="text-xl md:text-2xl font-medium">Karim</h4>
-                  <p>Hôte</p>
+                  <p>Host</p>
                 </div>
 
                 <div class="md:w-2/3 md:pl-8">
                   <div class="flex flex-col sm:flex-row sm:items-center mb-4 space-y-2 sm:space-y-0">
                     <div class="flex items-center mr-0 sm:mr-8 mb-2 sm:mb-0">
                       <span class="text-2xl font-medium mr-1">7</span>
-                      <span class="text-gray-600">évaluations</span>
+                      <span class="text-gray-600">reviews</span>
                     </div>
                     <div class="flex items-center">
                       <div class="flex items-center mr-1">
-                        <span class="text-2xl font-medium mr-1">3,57</span>
+                        <span class="text-2xl font-medium mr-1">3.57</span>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           class="h-5 w-5"
@@ -477,13 +600,13 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                           />
                         </svg>
                       </div>
-                      <span class="text-gray-600">en note globale</span>
+                      <span class="text-gray-600">overall rating</span>
                     </div>
                   </div>
 
                   <p class="mb-4">
-                    <span class="font-medium block mb-2">5</span>
-                    <span class="text-gray-600">ans en tant qu'hôte</span>
+                    <span class="font-medium mb-2">5</span>
+                    <span class="text-gray-600">years as a host</span>
                   </p>
 
                   <div class="space-y-6">
@@ -504,7 +627,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                       </svg>
                       <div>
                         <h5 class="font-medium">
-                          Ma profession : directeur générale du RIAD CHAHD PALACE
+                          My proMarakeshsion: general manager of RIAD CHAHD PALACE
                         </h5>
                       </div>
                     </div>
@@ -526,7 +649,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                       </svg>
                       <div>
                         <h5 class="font-medium">
-                          Langues parlées : Arabe, Anglais et Français
+                          Languages spoken: Arabic, English and French
                         </h5>
                       </div>
                     </div>
@@ -537,7 +660,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                       class="text-white py-2 px-4 sm:py-3 sm:px-6 rounded-lg font-medium w-full sm:w-auto"
                       style="background-color: #005555"
                     >
-                      Envoyer un message à l'hôte
+                      Send a message to the host
                     </button>
                   </div>
 
@@ -555,8 +678,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                       />
                     </svg>
                     <p>
-                      Afin de protéger votre paiement, utilisez toujours Airbnb
-                      pour envoyer de l'argent et communiquer avec les hôtes.
+                      To protect your payment, always use Airbnb to send money and communicate with hosts.
                     </p>
                   </div>
                 </div>
@@ -569,30 +691,30 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
             <div class="sticky top-24 border border-gray-300 rounded-xl p-4 shadow-lg mx-auto lg:ml-0 max-w-sm">
               <div class="flex items-center justify-between mb-3">
                 <h3 class="text-lg font-bold">
-                  <span class="text-xxl font-normal">Indiquez vos dates pour <br> afficher les prix</span>
+                  <span class="text-xxl font-normal">Enter your dates to <br> display prices</span>
                 </h3>
               </div>
 
               <div class="border border-gray-300 rounded-lg overflow-hidden mb-3">
                 <div class="grid grid-cols-2">
                   <div class="border-r border-b border-gray-300 p-2">
-                    <p class="text-xs font-medium">ARRIVÉE</p>
+                    <p class="text-xs font-medium">ARRIVAL</p>
                     <p class="font-medium text-sm" id="startDate">11/04/2025</p>
                   </div>
                   <div class="border-b border-gray-300 p-2">
-                    <p class="text-xs font-medium">DÉPART</p>
+                    <p class="text-xs font-medium">DEPARTURE</p>
                     <p class="font-medium text-sm" id="endDate">16/04/2025</p>
                   </div>
                   <div class="col-span-2 p-2">
                     <div class="relative">
-                      <p class="text-xs font-medium">VOYAGEURS</p>
+                      <p class="text-xs font-medium">TRAVELERS</p>
                       <select
                         class="w-full appearance-none bg-transparent font-medium text-sm focus:outline-none"
                       >
-                        <option>1 voyageur</option>
-                        <option>2 voyageurs</option>
-                        <option>3 voyageurs</option>
-                        <option>4 voyageurs</option>
+                        <option>1 traveler</option>
+                        <option>2 travelers</option>
+                        <option>3 travelers</option>
+                        <option>4 travelers</option>
                       </select>
                       <div
                         class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"
@@ -616,11 +738,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                 </div>
               </div>
 
-              <button
-                class="w-full bg-rose-600 hover:bg-rose-700 text-white py-2 rounded-lg font-bold mb-2 transition duration-150"
-              >
-                Réserver
-              </button>
+
 
               <div class="space-y-2 text-sm">
                 <div class="flex justify-between">
@@ -628,7 +746,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                   <!-- <p>1 425 €</p> -->
                 </div>
                 <div class="flex justify-between">
-                  <p class="underline">Frais de service</p>
+                  <p class="underline">Service fees</p>
                   <p>0 DH</p>
                 </div>
                 <div
@@ -639,38 +757,38 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                 </div>
               </div>
 
-              <button
+              <a href="paiement.php"><button
                 class="w-full text-white py-2 rounded-lg font-bold mt-3"
                 style="background-color: #005555"
               >
-                Réserver maintenant
+                Book now
               </button>
+              </a>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Emplacement -->
-      <div class="py-6 border-t border-gray-200">
-        <h3 class="text-xl font-semibold mb-6">Où vous serez</h3>
+      <!-- Location -->
+      <div class="py-6 border-t font-[Grotesk] border-gray-200">
+        <h3 class="text-xl font-semibold mb-6">Where you'll be</h3>
         <div class="h-64 sm:h-80 md:h-96 bg-gray-200 rounded-xl mb-4 relative">
-          <!-- Placeholder pour la carte -->
+          <!-- Placeholder for the map -->
           <div class="absolute inset-0 flex items-center justify-center">
-            <p class="text-gray-500">Carte de Fès, Maroc</p>
+            <p class="text-gray-500">Map of Marakesh, Morocco</p>
           </div>
         </div>
-        <p class="text-lg mb-2">Fès, Maroc</p>
+        <p class="text-lg mb-2">Marakesh, Morocco</p>
         <p class="text-gray-600 mb-6">
-          Le riad se situe dans le cœur de la medina de Fès, à proximité des
-          principaux sites touristiques et des souks traditionnels.
+          The riad is located in the heart of the Marakesh medina, close to the main tourist sites and traditional souks.
         </p>
         <button class="font-medium text-black underline">
-          Afficher plus d'informations sur l'emplacement
+          Show more information about the location
         </button>
       </div>
     </div>
 
-    <!-- Galerie modale pour afficher toutes les photos -->
+    <!-- Modal gallery to display all photos -->
     <div
       id="photoGalleryModal"
       class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden overflow-auto"
@@ -678,7 +796,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
       <div class="container mx-auto px-4 py-8 modal-slide-in">
         <div class="flex justify-between items-center mb-6">
           <h2 class="text-white text-xl sm:text-2xl font-bold">
-            Photos du Riad Chahd Palace
+            Photos of Riad Chahd Palace
           </h2>
           <button id="closeGallery" class="text-white hover:text-gray-300">
             <svg
@@ -704,7 +822,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
           >
             <img
               src="https://img.freepik.com/photos-gratuite/suite-luxe-dans-hotel-grande-hauteur-table-travail_105762-1783.jpg?t=st=1744394176~exp=1744397776~hmac=7d3fceffed8c8ce359bdf3d1d235c1161006aa8abf69cbf44234e905abdbcd1c&w=1380"
-              alt="Chambre luxury"
+              alt="Luxury room"
               class="w-full h-full object-cover"
             />
           </div>
@@ -713,7 +831,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
           >
             <img
               src="https://img.freepik.com/photos-gratuite/rendu-3d-belle-suite-chambre-luxe-hotel-television-etagere_105762-2077.jpg?t=st=1744394207~exp=1744397807~hmac=25cbddcac8bb520e50ecfe8467d6c42e41b525a1d072044897a11e0ca039771b&w=1380"
-              alt="Chambre"
+              alt="Room"
               class="w-full h-full object-cover"
             />
           </div>
@@ -722,7 +840,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
           >
             <img
               src="https://img.freepik.com/photos-premium/spa-rendu-3d-bien-etre-massage-dans-suite-hotel-baignoire_105762-2032.jpg?w=1380"
-              alt="Salle de bain"
+              alt="Bathroom"
               class="w-full h-full object-cover"
             />
           </div>
@@ -731,7 +849,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
           >
             <img
               src="https://img.freepik.com/photos-premium/spa-rendu-3d-bien-etre-massage-dans-suite-hotel-baignoire_105762-2032.jpg?w=1380"
-              alt="Salon"
+              alt="Living room"
               class="w-full h-full object-cover"
             />
           </div>
@@ -740,7 +858,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
           >
             <img
               src="https://img.freepik.com/photos-premium/spa-rendu-3d-bien-etre-massage-dans-suite-hotel-baignoire_105762-2032.jpg?w=1380"
-              alt="Terrasse"
+              alt="Terrace"
               class="w-full h-full object-cover"
             />
           </div>
@@ -756,7 +874,8 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
         </div>
       </div>
     </div>
-
+    <div><?php include "../includes/footer.html" ?></div>
+  </body>
 <script>
       document.addEventListener("DOMContentLoaded", function () {
   // Configuration initiale
@@ -1492,3 +1611,4 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
   <!-- <script src="../assets/js/api.js"></script>   -->
   </body>
 </html>
+

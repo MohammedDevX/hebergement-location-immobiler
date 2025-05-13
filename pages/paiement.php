@@ -1,127 +1,103 @@
-<?php
-session_start();
-require_once '../includes/connection.php';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link href="../assets/css/paiementCSS/output.css" rel="stylesheet">
+	<style>
+		@font-face {
+			font-family: 'Krylon';
+			src: url("../assets/fonts/Krylon-Regular.otf") format("opentype");
+			font-weight: 900;
+		}
+		@font-face {
+			font-family: 'Grotesk';
+			src: url("../assets/fonts/Grotesk-Regular.ttf") format("truetype");
+		}
+	</style>
+	<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white shadow-md rounded-lg p-6 max-w-lg w-full my-5">
+        <h2 class="text-4xl font-[Krylon]  text-gray-800 mb-4">Payment details</h2>
+        <form class="font-[Grotesk]">
+            <!-- Card Details -->
+            <div class="mb-4 text-md">
+                <label 
+					for="card-number" 
+					class="block text-lg font-medium text-gray-700">Card Details</label>
+                <input 
+					type="text" 
+					id="card-number" 
+					required 
+					placeholder="XXXX XXXX XXXX XXXX" 
+					class="mt-1 p-1.5 block w-full border-gray-300 rounded-md shadow-sm bg-[#13868623] focus:outline-none ring-0 focus:ring-2 focus:ring-[#005555] " 
+					pattern="\d{4} \d{4} \d{4} \d{4}" 
+					title="Card number must be in the format XXXX XXXX XXXX XXXX">
+            </div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <input 
+					type="text" 
+					placeholder="MM / YY" 
+					required 
+					class="block p-1.5 w-full border-gray-300 rounded-md shadow-sm bg-[#13868623] focus:outline-none ring-0 focus:ring-2 focus:ring-[#005555] "
+					pattern="^(0[1-9]|1[0-2]) \/ \d{2}$" 
+			        title="Expiration date must be in the format MM / YY (e.g., 04 / 25)">
+                <input 
+					type="text" 
+					placeholder="CVV" 
+					required 
+					class="block p-1.5 w-full border-gray-300 rounded-md shadow-sm bg-[#13868623] focus:outline-none ring-0 focus:ring-2 focus:ring-[#005555}] "
+					pattern="^\d{3,4}$" 
+			        title="CVV must be 3 or 4 digits (e.g., 123 or 1234)">
+            </div>
 
-// Verifie si l'utilisateur est connecte
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    die;
-}
+            <!-- Booking Summary Section -->
+        	<div class="bg-gray-50 p-4 rounded-lg shadow-inner">
+        	    <div class="flex items-center mb-4">
+    		    	<h3 class="text-3xl font-[Krylon] font-semibold w-full border-r-2 border-gray-600 text-left  text-gray-800">Booking Summary</h3>
+					<img src="https://a0.muscache.com/im/pictures/hosting/Hosting-1394247922445095202/original/d32a29bf-c3e8-4ed8-84ea-9a13c548fad4.jpeg?im_w=1200" alt="Booking Summary" class="w-72 h-38 ml-2 object-cover rounded-lg">
+				</div>
+        	    <div class="mb-4">
+        	        <p class="text-sm text-gray-700">Property:</p>
+        	        <p class="text-base font-medium text-gray-800">Dar Masha Sidi Mimoune Entire Riad </p>
+        	    </div>
+        	    <div class="mb-4">
+        	        <p class="text-sm text-gray-700">Check-in:</p>
+        	        <p class="text-base font-medium text-gray-800">May 14, 2025</p>
+        	    </div>
+        	    <div class="mb-4">
+        	        <p class="text-sm text-gray-700">Check-out:</p>
+        	        <p class="text-base font-medium text-gray-800">May 23, 2025</p>
+        	    </div>
+        	    <div class="mb-4">
+        	        <p class="text-sm text-gray-700">Guests:</p>
+        	        <p class="text-base font-medium text-gray-800">2 Adults, 1 Child</p>
+        	    </div>
+        	    <div class="border-t border-gray-200 pt-4">
+        	        <div class="flex justify-between items-center mb-2">
+        	            <span class="text-sm text-gray-700">Subtotal</span>
+        	            <span class="text-sm font-medium text-gray-800">$500.00</span>
+        	        </div>
+        	        <div class="flex justify-between items-center mb-2">
+        	            <span class="text-sm text-gray-700">Service Fee</span>
+        	            <span class="text-sm font-medium text-gray-800">$50.00</span>
+        	        </div>
+        	        <div class="flex justify-between items-center text-lg font-semibold text-gray-800">
+        	            <span>Total</span>
+        	            <span>$580.00</span>
+        	        </div>
+        	        <p class="text-sm text-gray-500">+ applicable taxes</p>
+        	    </div>
+        	</div>
 
-// Test : 
-if (!isset($_SESSION['montant'])) {
-    $_SESSION['montant'] = 1000;
-}
-if (!isset($_SESSION['id_annonce'])) {
-    $_SESSION['id_annonce'] = 1;
-}
-if (!isset($_SESSION['date_debut'])) {
-    $_SESSION['date_debut'] = date('Y-m-d');
-}
-if (!isset($_SESSION['date_fin'])) {
-    $_SESSION['date_fin'] = date('Y-m-d', strtotime('+3 days'));
-}
-if (!isset($_SESSION['montant_total'])) {
-    $_SESSION['montant_total'] = $_SESSION['montant'];
-}
-
-$errors = []; // Tableaux pour stocker les erreurs 
-$success = "";
-
-$montant_total = $_SESSION['montant_total'];
-$id_annonce = $_SESSION['id_annonce'];
-$id_locataire = $_SESSION['user_id']['id_user'];
-$commission = round($montant_total * 0.10, 2); // Prendre 10% de montant total pour la platforme
-$montant_hote = $montant_total - $commission; // Le reste pour l'hote
-
-// Fonction de validation Luhn
-function validateCardNumber($cardNumber) {
-    $cardNumber = preg_replace('/\D/', '', $cardNumber); // Enlever les non numériques
-
-    if (strlen($cardNumber) != 16) return false;
-
-    $sum = 0;
-    $shouldDouble = false;
-
-    for ($i = strlen($cardNumber) - 1; $i >= 0; $i--) {
-        $digit = (int)$cardNumber[$i];
-        if ($shouldDouble) {
-            $digit *= 2;
-            if ($digit > 9) $digit -= 9;
-        }
-        $sum += $digit;
-        $shouldDouble = !$shouldDouble;
-    }
-
-    return $sum % 10 === 0;
-}
-
-// Traitement du formulaire
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $num_carte = trim($_POST["num_carte"] ?? '');
-    $exp_mois = trim($_POST["exp_mois"] ?? '');
-    $exp_annee = trim($_POST["exp_annee"] ?? '');
-    $cvv = trim($_POST["cvv"] ?? '');
-
-    if (!validateCardNumber($num_carte)) {
-        $errors[] = "Numéro de carte invalide";
-    }
-
-    if (!preg_match('/^\d{2}$/', $exp_mois) || $exp_mois < 1 || $exp_mois > 12) {
-        $errors[] = "Mois d'expiration invalide";
-    }
-
-    if (!preg_match('/^\d{4}$/', $exp_annee) || $exp_annee < date('Y')) {
-        $errors[] = "Année d'expiration invalide";
-    }
-
-    if (!preg_match('/^\d{3}$/', $cvv)) {
-        $errors[] = "CVV invalide";
-    }
-
-    // Reservation
-    if (empty($errors)) {
-        $montant = $_SESSION['montant'];
-        $date_debut = $_SESSION['date_debut'];
-        $date_fin = $_SESSION['date_fin'];
-
-        if (!$montant || !$id_annonce || !$id_locataire || !$date_debut || !$date_fin) {
-            $errors[] = "Informations de réservation manquantes";
-        } else {
-            $query = "INSERT INTO reservation (date_debut, date_fin, montant, montant_hote, commission_plateforme, id_locataire, id_annonce)
-                    VALUES (:date_debut, :date_fin, :montant, :montant_hote, :commission_plateforme, :id_locataire, :id_annonce)";
-            $stmt = $conn->prepare($query);
-            $stmt->bindParam(":date_debut", $date_debut);
-            $stmt->bindParam(":date_fin", $date_fin);
-            $stmt->bindParam(":montant", $montant);
-            $stmt->bindParam(":montant_hote", $montant_hote);
-            $stmt->bindParam(":commission_plateforme", $commission);
-            $stmt->bindParam(":id_locataire", $id_locataire);
-            $stmt->bindParam(":id_annonce", $id_annonce);
-
-            if ($stmt->execute()) {
-                echo "<p style='color:green;'>Réservation et paiement enregistrés avec succès</p>";
-            } else {
-                echo "<p style='color:red;'>Erreur lors de l'enregistrement de la réservation</p>";
-            }
-        }
-    }
-
-    // Afficher erreurs
-    if (!empty($errors)) {
-        echo "<p style='color:red;'>".$errors[0]."</p>";
-    }
-}
-?>
-
-<form method="POST">
-    <label>Numéro de carte :</label>
-    <input type="text" name="num_carte" required><br>
-    <label>Mois expiration :</label>
-    <input type="text" name="exp_mois" required><br>
-    <label>Année expiration :</label>
-    <input type="text" name="exp_annee" required><br>
-    <label>CVV :</label>
-    <input type="text" name="cvv" required><br>
-    <button type="submit">Payer</button>
-</form>
+            <!-- Buttons -->
+            <div class="mt-6 flex justify-between">
+                <button type="button" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-[#005555] text-white rounded-md hover:bg-[#0b574fe2] ">Validate</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

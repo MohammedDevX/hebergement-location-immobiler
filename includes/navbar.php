@@ -1,3 +1,49 @@
+<?php
+// session_start();
+
+$isLoggedIn = isset($_SESSION['user_id']);
+
+require "../libraries/phpmailer/mail.php";
+require "../includes/connection.php";
+
+if (isset($_POST["valide"])) {
+    $email = $_POST['email'] ?? '';
+
+    $query = "SELECT * FROM locataire WHERE email = :email";
+    $stmt = $conn->prepare($query);
+    $stmt->bindParam(":email", $email);
+    $stmt->execute();
+    $user = $stmt->fetch();
+
+    if ($user) {
+        // Créer le lien avec l'email
+        $resetLink = "http://localhost/hebergement-entreparticulier/pages/updatePassword.php?email=" . urlencode($email);
+
+        // Configuration de l'envoi de mail
+        $mail->setFrom("itsbakhtaouimohammed@gmail.com", "Bakhtaoui Mohammed");
+        $mail->addAddress($email); 
+        $mail->Subject = "Lien de réinitialisation du mot de passe";
+        $mail->Body = "Cliquez ici pour réinitialiser votre mot de passe : <a href='$resetLink'>Réinitialiser</a>";
+        $mail->AltBody = "Cliquez ici pour réinitialiser votre mot de passe : $resetLink";
+
+        if ($mail->send()) {
+            setcookie("notif", "Un lien de réinitialisation a été envoyé à votre email.", time() + 10*24*60*60);
+            header("Location:acceuille.php");
+            die;
+        } else {
+            setcookie("notif", "Erreur d'envoi de l'email.", time() + 10*24*60*60);
+            header("Location:acceuille.php");
+            die;
+        }
+    } else {
+        setcookie("notif", "Email introuvable dans notre base de données.", time() + 10*24*60*60);
+        header("Location:acceuille.php");
+        die;
+    }
+}
+
+// Le reste de votre code HTML reste inchangé
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,14 +86,31 @@
             <a href="../pages/accueil.php" class=" font-[Krylon] text-2xl text-white duration-100 hover:text-[#ffffffcc] px-5">NovaNook</a>
 			
             <ul class="flex justify-end w-full">
-
-				<div class=" flex mr-5 ">
+				<?php if ($isLoggedIn) { ?>
+				<div class="flex mr-5 ">
 					<div class="text-white text-2xl hover:cursor-pointer">
-						<a href="../pages/profile.php/?id="><i class="fa-solid fa-user"></i></a>
+						<label for="LoggedMenu"><i class="fa-solid fa-user hover:cursor-pointer"></i></label>
 					</div>
 				</div>
-                
-                <!-- <li><a href="#" class=" font-[Grotesk] text-[1em] text-white hover:text-[#ffffffcc] pl-2.5 pr-5">Contact Us</a></li> -->
+					<input type="radio" id="LoggedMenu" name="Modal" class="hidden peer/LoggedMenu"/>
+					<label for="hide" class="hidden peer-checked/LoggedMenu:block fixed inset-0 z-40 custom-overlay"></label>
+					<div  class="hidden peer-checked/LoggedMenu:flex items-center mr-[10/100]  justify-center bg-[#005555] text-white p-4 absolute  rounded-lg shadow-lg z-50 pointer-events-none">
+						<ul class="flex flex-col text-sm pointer-events-auto">
+							<li class="hover:cursor-pointer mb-5">
+								<label class="text-[#EFE9E7] text-center hover:cursor-pointer block font-[Krylon] text-[1.2em] duration-400 hover:text-[#888098]">
+										<a href="../pages/Profile.php" class="text-center font-[Grotesk] text-[1em] text-white hover:text-[#ffffffcc]">Profile</a>
+								</label>
+							</li>
+							<li class="hover:cursor-pointer">
+								<label class="text-[#EFE9E7] hover:cursor-pointer block  font-[Krylon] text-[1.2em] duration-400 hover:text-[#888098]">
+										<!-- se deconnecter -->
+										<a href="../pages/logout.php" class=" font-[Grotesk] text-[1em] text-white hover:text-[#ffffffcc]">LogOut</a>
+										<!-- se deconnecter -->
+								</label>
+							</li>
+						</ul>
+					</div>
+                <?php } else { ?>
                 
 		<!-- partie li khasha tkhb3 -->
 				
@@ -81,6 +144,7 @@
 					<!-- Drop down menu for mobile -->
 					
 				</div>
+				<?php } ?>
 		<!-- partie li khasha tkhb3 -->
             </ul>
         </div>
@@ -293,7 +357,7 @@
 	        <p class="text-gray-600 text-sm mb-6 text-center">
 	            Enter your email address below and we'll send you a link to reset your password.
 	        </p>
-	        <form action="/recover-password" method="POST" class="space-y-4">
+	        <form action="acceuille.php" method="POST" class="space-y-4">
 	            <div class="mb-6">
 	                <label for="email" class="block font-medium text-lg text-gray-700">Email Address</label>
 	                <input
@@ -306,7 +370,7 @@
 	                />
 	            </div>
 	            <div class="mb-4">
-	                <button type="submit" class="w-full px-4 py-2 bg-[#005555] text-white rounded-md hover:bg-[#0b574fe2]">Validate</button>
+	                <button type="submit" name="valide" class="w-full px-4 py-2 bg-[#005555] text-white rounded-md hover:bg-[#0b574fe2]">Validate</button>
 	            </div>
 	        </form>
 	        <div class="flex justify-center items-center">
@@ -318,3 +382,4 @@
 	<script src="../assets/js/navbar.js"></script>
 </body>
 </html>
+<!-- Le reste de votre code HTML reste inchangé -->

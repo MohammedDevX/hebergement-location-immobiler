@@ -5,7 +5,7 @@ require "../includes/connection.php";
 if (isset($_POST["email"])) {
     $email = $_POST['email'] ?? '';
 
-    $query = "SELECT * FROM utilisateur WHERE email = :email";
+    $query = "SELECT * FROM locataire WHERE email = :email";
     $stmt = $conn->prepare($query);
     $stmt->bindParam(":email", $email);
     $stmt->execute();

@@ -29,7 +29,7 @@ if (isset($_POST["email"]) && isset($_POST["password"])) {
         // Vérification du mot de passe
         if (password_verify($pass, $data["mot_passe"])) { // Fonction qui comparer entre un string et un hash
             $_SESSION['user_id'] = $data; // Enregistrer l'utilisateur dans la session
-            header("Location: profile.php"); // Rediriger vers le profile
+            header("Location: acceuille.php"); // Rediriger vers le profile
             die;
         } else {
             $errors[] = "Email ou mot de passe incorrect.";

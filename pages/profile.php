@@ -1,3 +1,7 @@
+<?php 
+session_start();
+if (isset($_SESSION["user_id"])) {
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -12,11 +16,11 @@
     <input type="radio" id="editPrfl" name="Modal" class="peer/editPrfl hidden">
     <label for="hide" class="hidden peer-checked/editPrfl:block fixed inset-0 z-40 custom-overlay"></label>
     <div class="font-[Grotesk] hidden fixed inset-0 peer-checked/editPrfl:flex items-center justify-center min-h-screen z-50 overflow-y-auto pointer-events-none">
-		<div class="bg-white shadow-md rounded-lg p-6 w-[90%] max-w-lg pointer-events-auto overflow-y-auto max-h-screen">
-			<h1 class="font-[Krylon] text-4xl text-gray-800 mb-4 text-center">Modifie Your Info</h1>
-			<p class="text-gray-600 text-sm mb-6 text-center">
-				Enter the new informations.
-			</p>
+    <div class="bg-white shadow-md rounded-lg p-6 w-[90%] max-w-lg pointer-events-auto overflow-y-auto max-h-screen">
+      <h1 class="font-[Krylon] text-4xl text-gray-800 mb-4 text-center">Modifie Your Info</h1>
+      <p class="text-gray-600 text-sm mb-6 text-center">
+        Enter the new informations.
+      </p>
       <div class="flex flex-col items-center text-center">
   <!-- Image with Label -->
   <label for="profileImageInput" class="cursor-pointer relative mb-4 block">
@@ -44,83 +48,83 @@
 
 
 </div>
-			<form action="/recover-password" method="POST" class="space-y-4">
-				<div class="mb-6">
-					<label 
-					for="nom" 
-					class="block font-medium text-lg text-gray-700">First Name</label>
-					<input 
-					type="text" 
-					id="nom" 
-					placeholder="Enter your First Name" 
-					name="nom"
+      <form action="/recover-password" method="POST" class="space-y-4">
+        <div class="mb-6">
+          <label 
+          for="nom" 
+          class="block font-medium text-lg text-gray-700">First Name</label>
+          <input 
+          type="text" 
+          id="nom" 
+          placeholder="Enter your First Name" 
+          name="nom"
           pattern="[A-za-z]{3,30}"
-					class="mt-1 text-md p-1.5 block w-full border-gray-300  bg-[#13868623] rounded-md shadow-sm focus:outline-none ring-0 focus:ring-2 focus:ring-nova"
-					>
-				</div>
-				<div class="mb-6">
-					<label 
-					for="prenom" 
-					class="block font-medium text-lg text-gray-700">Last Name</label>
-					<input 
-					type="text" 
-					id="prenom" 
-					placeholder="Enter your Last Name" 
-					name="nom"
+          class="mt-1 text-md p-1.5 block w-full border-gray-300  bg-[#13868623] rounded-md shadow-sm focus:outline-none ring-0 focus:ring-2 focus:ring-nova"
+          >
+        </div>
+        <div class="mb-6">
+          <label 
+          for="prenom" 
+          class="block font-medium text-lg text-gray-700">Last Name</label>
+          <input 
+          type="text" 
+          id="prenom" 
+          placeholder="Enter your Last Name" 
+          name="nom"
           pattern="[A-za-z]{3,30}"
-					class="mt-1 text-md p-1.5 block w-full border-gray-300  bg-[#13868623] rounded-md shadow-sm focus:outline-none ring-0 focus:ring-2 focus:ring-nova"
-					>
-				</div>
-				<div class="mb-6">
-					<label 
-					for="email" 
-					class="block font-medium text-lg text-gray-700">Email Address</label>
-					<input 
-					type="email" 
-					id="email" 
-					placeholder="Enter your email" 
-					name="email"
-					class="mt-1 text-md p-1.5 block w-full border-gray-300  bg-[#13868623] rounded-md shadow-sm focus:outline-none ring-0 focus:ring-2 focus:ring-nova"
-					>
-				</div>
-				<div class="mb-6">
-					<label 
-					for="username" 
-					class="block font-medium text-lg text-gray-700">Username</label>
-					<input 
-					type="username" 
-					id="username" 
-					placeholder="Enter your username"
-					name="username" 
-					class="mt-1 text-md p-1.5 block w-full border-gray-300  bg-[#13868623] rounded-md shadow-sm focus:outline-none ring-0 focus:ring-2 focus:ring-nova"
-					>
-				</div>
-				
-				<div class="mb-6">
-					<label 
-					for="phoneNumber" 
-					class="block font-medium text-lg text-gray-700">Phone Number</label>
-					<input 
-					type="tel"
-					id="phoneNumber" 
-					placeholder="Enter your phone number"
+          class="mt-1 text-md p-1.5 block w-full border-gray-300  bg-[#13868623] rounded-md shadow-sm focus:outline-none ring-0 focus:ring-2 focus:ring-nova"
+          >
+        </div>
+        <div class="mb-6">
+          <label 
+          for="email" 
+          class="block font-medium text-lg text-gray-700">Email Address</label>
+          <input 
+          type="email" 
+          id="email" 
+          placeholder="Enter your email" 
+          name="email"
+          class="mt-1 text-md p-1.5 block w-full border-gray-300  bg-[#13868623] rounded-md shadow-sm focus:outline-none ring-0 focus:ring-2 focus:ring-nova"
+          >
+        </div>
+        <div class="mb-6">
+          <label 
+          for="username" 
+          class="block font-medium text-lg text-gray-700">Username</label>
+          <input 
+          type="username" 
+          id="username" 
+          placeholder="Enter your username"
+          name="username" 
+          class="mt-1 text-md p-1.5 block w-full border-gray-300  bg-[#13868623] rounded-md shadow-sm focus:outline-none ring-0 focus:ring-2 focus:ring-nova"
+          >
+        </div>
+        
+        <div class="mb-6">
+          <label 
+          for="phoneNumber" 
+          class="block font-medium text-lg text-gray-700">Phone Number</label>
+          <input 
+          type="tel"
+          id="phoneNumber" 
+          placeholder="Enter your phone number"
           pattern="^\+?[1-9]\d{1,14}$"
-					name="phoneNumber" 
-					class="mt-1 text-md p-1.5 block w-full border-gray-300  bg-[#13868623] rounded-md shadow-sm focus:outline-none ring-0 focus:ring-2 focus:ring-nova"
-					>
-				</div>
-				<div class="mb-4">
-					<button type="submit" class="w-full px-4 py-2 bg-[#005555] text-white rounded-md hover:bg-opacity-60 hover:cursor-pointer">Confirm</button>
-				</div>
-			</form>
-			<div class=" flex justify-center items-center">
-				<label for="recover" class="border-t-1 pt-4 text-center text-gray-700 text-sm text-nova  hover:underline px-9 hover:opacity-80 hover:cursor-pointer">change your password</label>
-			</div>
-		</div>
-	</div>
+          name="phoneNumber" 
+          class="mt-1 text-md p-1.5 block w-full border-gray-300  bg-[#13868623] rounded-md shadow-sm focus:outline-none ring-0 focus:ring-2 focus:ring-nova"
+          >
+        </div>
+        <div class="mb-4">
+          <button type="submit" class="w-full px-4 py-2 bg-[#005555] text-white rounded-md hover:bg-opacity-60 hover:cursor-pointer">Confirm</button>
+        </div>
+      </form>
+      <div class=" flex justify-center items-center">
+        <label for="recover" class="border-t-1 pt-4 text-center text-gray-700 text-sm text-nova  hover:underline px-9 hover:opacity-80 hover:cursor-pointer">change your password</label>
+      </div>
+    </div>
+  </div>
     <!-- PopUp edit Profile -->
     <div class="navbar-container">
-        <?php include "../includes/navbar.html" ?>
+        <?php include "../includes/navbar.php" ?>
     </div>
     <div class="container mx-auto px-4 py-8 my-30">
      <div class="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8">
@@ -255,3 +259,8 @@
     <script src="../assets/js/profile.js"></script>
 </body>
 </html>
+<?php 
+} else {
+  header("Location:acceuille.php");
+} 
+?>
