@@ -2,24 +2,28 @@
 session_start();
 require "../includes/connection.php";
 
+$id = $_GET["id"];
+
 $query = "SELECT annonce.*, hote.created_at, ville.nom_ville, locataire.nom, locataire.prenom, locataire.photo_profil
           FROM annonce INNER JOIN ville ON annonce.id_ville=ville.id_ville 
           INNER JOIN hote ON annonce.id_hote=hote.id_hote 
           INNER JOIN locataire ON hote.id_locataire=locataire.id_locataire
-          WHERE annonce.id_annonce=1";
+          WHERE annonce.id_annonce=:id";
 $stmt = $conn->prepare($query);
+$stmt->bindParam(":id", $id);
 $stmt->execute();
-$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$data = $stmt->fetch(PDO::FETCH_ASSOC);
 // print_r($data);
 
 $today = new DateTime();
-$created = new DateTime($data[0]["created_at"]);
+$created = new DateTime($data["created_at"]);
 $intervale = date_diff($today, $created);
 
 $query2 = "SELECT photo, titre
             FROM photos 
-            WHERE id_annonce=1";
+            WHERE id_annonce=:id";
 $stmt = $conn->prepare($query2);
+$stmt->bindParam(":id", $id);
 $stmt->execute();
 $data2 = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $tab = end($data2);
@@ -27,13 +31,36 @@ $tab = end($data2);
 
 $query3 = "SELECT date_dispo
             FROM disponibilite
-            WHERE id_annonce=1";
+            WHERE id_annonce=:id";
 $stmt=$conn->prepare($query3);
+$stmt->bindParam(":id", $id);
 $stmt->execute();
 $data3 = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $data3 = json_encode($data3);
-// print_r($data3);
 
+$query4 = "SELECT avis.note, avis.commentaire, avis.created_at, locataire.nom, locataire.prenom, locataire.photo_profil
+          FROM avis INNER JOIN annonce ON annonce.id_annonce=avis.id_annonce
+          INNER JOIN locataire ON avis.id_locataire=locataire.id_locataire
+          WHERE annonce.id_annonce=:id";
+$stmt4 = $conn->prepare($query4);
+$stmt4->bindParam(":id", $id);
+$stmt4->execute();
+$data4 = $stmt4->fetchAll(PDO::FETCH_ASSOC);
+// print_r($data4);
+
+if (isset($_POST['submit_rev'])) {
+  $note = $_POST["rating"];
+  $comentaire = $_POST["comment"];
+  $query5 = "INSERT INTO avis (note, commentaire, id_locataire, id_annonce) 
+            VALUES (:note, :commentaire, :id_locataire, :id_annonce)";
+  $stmt5 = $conn->prepare($query5);
+  $stmt5->bindParam(":note", $note);
+  $stmt5->bindParam(":commentaire", $comentaire);
+  $stmt5->bindParam(":id_locataire", $_SESSION["user_id"]["id_locataire"]);
+  $stmt5->bindParam(":id_annonce", $data["id_annonce"]);
+  $stmt5->execute();
+  header("Location:detaille.php?id=$id");
+}
 ?>
 <script>
 // Ce tableau contiendra toutes les dates indisponibles récupérées de la base de données
@@ -82,7 +109,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
     <div class="px-6 sm:px-6 lg:px-18">
       <!-- Header -->
       <div class="py-4">
-        <h1 class="text-4xl md:text-4xl font-[Krylon] font-medium"><?php echo $data[0]["titre"] ?></h1>
+        <h1 class="text-4xl md:text-4xl font-[Krylon] font-medium"><?php echo $data["titre"] ?></h1>
       </div>
 
       <!-- Main Gallery -->
@@ -123,7 +150,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
 </div>
 
 <!-- Photo Gallery Modal -->
-<div id="photoGalleryModal" class="hidden  fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center p-4">
+<div id="photoGalleryModal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center p-4">
   <div class="relative w-full max-w-7xl mx-auto">
     <!-- Close button -->
     <button id="closeGallery" class="absolute -top-12 right-2 text-white p-2 z-10">
@@ -156,9 +183,9 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
       <div class="py-6">
         <div class="flex flex-col font-[Grotesk] lg:flex-row lg:justify-between">
           <div class="lg:w-2/3 pr-0 lg:pr-8">
-            <h2 class="text-2xl font-semibold mb-1"><?php echo $data[0]["type_logement"] ?> - <?php echo $data[0]["nom_ville"] ?>, Morocco</h2>
+            <h2 class="text-2xl font-semibold mb-1"><?php echo $data["type_logement"] ?> - <?php echo $data["nom_ville"] ?>, Morocco</h2>
             <p class="text-lg text-gray-700 mb-2">
-              For <?php echo $data[0]["capacite"] ?> travelers
+              For <?php echo $data["capacite"] ?> travelers
             </p>
               <div class="flex items-center mb-6">
                 <svg
@@ -171,19 +198,19 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                     d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
                   />
                 </svg>
-                <label for="PopupRev" class="ml-1 underline hover:cursor-pointer">1 review</label>
+                <label for="PopupRev" class="ml-1 underline hover:cursor-pointer"><?php echo $stmt4->rowCount() ?> review</label>
               </div>
 
             <!-- Host information -->
             <div class="border-t border-b border-gray-200 py-8 my-8">
               <div class="flex items-center mb-6">
                 <img
-                  src="<?php echo $data[0]["photo_profil"] ?>"
-                  alt="<?php echo $data[0]["nom"] ?> <?php echo $data[0]["prenom"] ?>"
+                  src="../<?php echo $data["photo_profil"] ?>"
+                  alt="<?php echo $data["nom"] ?> <?php echo $data["prenom"] ?>"
                   class="w-12 h-12 rounded-full mr-4"
                 />
                 <div>
-                  <h3 class="font-medium">Host: <?php echo $data[0]["nom"] ?> <?php echo $data[0]["prenom"] ?></h3>
+                  <h3 class="font-medium">Host: <?php echo $data["nom"] ?> <?php echo $data["prenom"] ?></h3>
                   <p class="text-gray-600">Host for <?php echo $intervale->format('%y years, %m months, %d days'); ?></p>
                 </div>
               </div>
@@ -288,7 +315,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
             <div class="my-8">
               <h3 class="text-xl font-semibold mb-4">About this accommodation</h3>
               <p class="mb-2">
-                <?php echo $data[0]["description_annonce"] ?>
+                <?php echo $data["description_annonce"] ?>
               <!-- <button class="font-medium text-black underline">
                 Read more
               </button> -->
@@ -402,120 +429,64 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
 
             <!-- Review Popup -->
             <input type="radio" id="PopupRev" name="Modal" class="hidden peer/editPrfl">
-            <label for="hide" class="hidden peer-checked/editPrfl:block fixed inset-0 z-40 custom-overlay""></label>
+            <label for="hide" class="hidden peer-checked/editPrfl:block fixed inset-0 z-40 custom-overlay"></label>
             <div class="font-[Grotesk] hidden fixed inset-0 peer-checked/editPrfl:flex items-center justify-center min-h-screen z-50 overflow-y-auto pointer-events-none">
           		<div class="bg-white shadow-md rounded-lg p-6 w-[90%] max-w-lg hide-scrollbar max-h-[80vh] lg:max-w-[70%] md:max-w-[80%] pointer-events-auto overflow-y-auto">
                 <!-- Review 1 -->
+                <?php foreach ($data4 as $dt=>$avis) { ?>
                 <div class="bg-white p-6 mb-4 rounded-xl shadow-sm">
                   <div class="flex items-center mb-4">
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx0CIy3mIbpe2nuLRfK5xxPcwxmTvXjJsBNw&s" alt="User" class="w-12 h-12 rounded-full mr-4">
+                    <img src="../<?php echo $avis["photo_profil"] ?>" alt="<?php echo $avis["nom"] ?>" class="w-12 h-12 rounded-full mr-4">
                     <div>
-                          <h3 class="font-bold text-novanook-teal">Sarah M.</h3>
-                          <div class="flex items-center text-gray-500 text-sm">
-                              <div class="flex text-yellow-400 mr-2">
-                                  <i class="fas fa-star"></i>
-                                  <i class="fa-regular fa-star"></i>
-                                  <i class="fa-regular fa-star"></i>
-                                  <i class="fa-regular fa-star"></i>
-                                  <i class="fa-regular fa-star"></i>
-                              </div>
-                              <span>· March 2023</span>
-                          </div>
-                        </div>
-                      </div>
-                  <h4 class="font-medium text-novanook-teal mb-2">SCAM !!!</h4>
-                  <p class="text-gray-700 mb-4">
-                       No room available upon arrival. An exaggerated day searching for alternative accommodation without getting the money back.It's really a scam to bring tourists to a place that doesn't exist. I would not recommend this host or property to anyone. Extremely disappointing experience.
-                  </p>
-                  <div class="flex space-x-4">
-                      <button class="text-novanook-teal text-sm font-medium">
-                          <i class="far fa-thumbs-up mr-1"></i> Helpful (2)
-                      </button>
-                  </div>
-              </div>
-                <!-- Review 2 -->
-                <div class="bg-white p-6 mb-4 rounded-xl shadow-sm">
-                  <div class="flex items-center mb-4">
-                    <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="w-12 h-12 rounded-full mr-4">
-                    <div>
-                          <h3 class="font-bold text-novanook-teal">Sarah M.</h3>
-                          <div class="flex items-center text-gray-500 text-sm">
-                              <div class="flex text-yellow-400 mr-2">
-                                  <i class="fas fa-star"></i>
-                                  <i class="fas fa-star"></i>
-                                  <i class="fas fa-star"></i>
-                                  <i class="fas fa-star"></i>
-                                  <i class="fas fa-star"></i>
-                              </div>
-                              <span>· March 2023</span>
-                          </div>
-                        </div>
-                      </div>
-                  <h4 class="font-medium text-novanook-teal mb-2">Perfect mountain getaway!</h4>
-                  <p class="text-gray-700 mb-4">
-                      The villa was absolutely stunning with breathtaking mountain views. Everything was clean, modern, and exactly as pictured.
-                  </p>
-                  <div class="flex space-x-4">
-                      <button class="text-novanook-teal text-sm font-medium">
-                          <i class="far fa-thumbs-up mr-1"></i> Helpful (12)
-                      </button>
-                  </div>
-              </div>
-
-              <!-- Review 3 -->
-              <div class="review bg-white p-6 mb-4 rounded-xl shadow-sm">
-                  <div class="flex items-center mb-4">
-                      <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="w-12 h-12 rounded-full mr-4">
-                      <div>
-                          <h3 class="font-bold text-novanook-teal">Michael T.</h3>
+                          <h3 class="font-bold text-novanook-teal"><?php echo $avis["nom"] ?> <?php echo $avis["prenom"] ?></h3>
                           <div class="flex items-center text-gray-500 text-sm">
                             <div class="flex text-yellow-400 mr-2">
+                            <?php for ($i=1; $i<=5; $i++) { 
+                              if ($i<=$avis["note"]) {?>
                               <i class="fas fa-star"></i>
-                              <i class="fas fa-star"></i>
-                              <i class="fas fa-star"></i>
-                              <i class="fas fa-star"></i>
-                              <i class="fas fa-star"></i>
-                            </div>
-                            <span>· February 2023</span>
-                          </div>
-                      </div>
-                    </div>
-                  <h4 class="font-medium text-novanook-teal mb-2">Exceptional experience</h4>
-                  <p class="text-gray-700 mb-4">
-                    From the moment we arrived, we were blown away by the beauty of this property.
-                  </p>
-                  <div class="flex space-x-4">
-                      <button class="text-novanook-teal text-sm font-medium">
-                          <i class="far fa-thumbs-up mr-1"></i> Helpful (8)
-                      </button>
-                  </div>
-              </div>
-              
-              <!-- Review Form -->
-              <div class="bg-white p-6 rounded-xl shadow-sm">
-                <h2 class="text-xl font-bold text-novanook-teal mb-6">Write a Review</h2>
-                <form id="review-form">
-                  <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
-                    <div id="rating-stars" class="flex space-x-2">
-                      <button type="button" class="star text-3xl text-gray-300 hover:text-yellow-400">★</button>
-                      <button type="button" class="star text-3xl text-gray-300 hover:text-yellow-400">★</button>
-                              <button type="button" class="star text-3xl text-gray-300 hover:text-yellow-400">★</button>
-                              <button type="button" class="star text-3xl text-gray-300 hover:text-yellow-400">★</button>
-                              <button type="button" class="star text-3xl text-gray-300 hover:text-yellow-400">★</button>
+                              <?php } else { ?>
+                                <i class="fa-regular fa-star"></i>
+                              <?php };
+                             } ?>
+                              </div>
+                              <span>· <?php echo explode(' ', $avis["created_at"])[0] ?></span>
                           </div>
                         </div>
-                      <div class="mb-6">
-                        <label for="review-text" class="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                        <input type="review-text" id="review-title" class="w-full px-4 py-3 border rounded-lg" placeholder="Summarize your experience">
                       </div>
+                  <p class="text-gray-700 mb-4">
+                       <?php echo $avis["commentaire"] ?>.
+                  </p>
+              </div>
+                <?php } ?>
+                
+              
+              <!-- Review Form -->
+               <?php if (!empty($_SESSION["user_id"])) {?>
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                  <h2 class="text-xl font-bold text-novanook-teal mb-6">Write a Review</h2>
+                    <form id="review-form" method="post" action="detaille.php?id=<?php echo $_GET['id']; ?>">
+                      <input type="hidden" name="rating" id="rating-value" value="0">
+  
+                      <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
+                        <div id="rating-stars" class="flex space-x-2">
+                          <button type="button" class="star text-3xl text-gray-300 hover:text-yellow-400" data-value="1">★</button>
+                          <button type="button" class="star text-3xl text-gray-300 hover:text-yellow-400" data-value="2">★</button>
+                          <button type="button" class="star text-3xl text-gray-300 hover:text-yellow-400" data-value="3">★</button>
+                          <button type="button" class="star text-3xl text-gray-300 hover:text-yellow-400" data-value="4">★</button>
+                          <button type="button" class="star text-3xl text-gray-300 hover:text-yellow-400" data-value="5">★</button>
+                        </div>
+                      </div>
+  
                       <div class="mb-6">
                         <label for="review-text" class="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
-                        <textarea id="review-text" rows="5" class="w-full px-4 py-3 border rounded-lg" placeholder="Share your experience"></textarea>
+                        <textarea id="review-text" name="comment" rows="5" class="w-full px-4 py-3 border rounded-lg" placeholder="Share your experience"></textarea>
                       </div>
-                      <button type="submit" class="w-full bg-novanook-teal text-white font-bold py-3 rounded-lg">Submit Review</button>
+  
+                      <input type="submit" value="Submit review" name="submit_rev" class="w-full bg-[#005555] text-white font-bold py-3 rounded-lg">
                     </form>
-                  </div>
+                    </div>
+              <?php }?>
                 </div>
               </div>
                 <!-- Review Popup -->
@@ -572,7 +543,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
               <div class="flex flex-col md:flex-row bg-gray-50 rounded-xl p-4 md:p-6">
                 <div class="md:w-1/3 flex flex-col items-center text-center mb-6 md:mb-0">
                   <img
-                    src="<?php echo $data[0]["photo_profil"] ?>"
+                    src="<?php echo $data["photo_profil"] ?>"
                     alt="Photo Karim"
                     class="w-20 h-20 md:w-24 md:h-24 rounded-full mb-4"
                   />
@@ -708,13 +679,10 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                   <div class="col-span-2 p-2">
                     <div class="relative">
                       <p class="text-xs font-medium">TRAVELERS</p>
-                      <select
-                        class="w-full appearance-none bg-transparent font-medium text-sm focus:outline-none"
-                      >
-                        <option>1 traveler</option>
-                        <option>2 travelers</option>
-                        <option>3 travelers</option>
-                        <option>4 travelers</option>
+                      <select class="w-full appearance-none bg-transparent font-medium text-sm focus:outline-none">
+                        <?php for ($i = 1; $i <= $data['capacite']; $i++) { ?>
+                          <option value="<?php echo $i; ?>"><?php echo $i; ?> traveler<?php echo $i > 1 ? 's' : ''; ?></option>
+                        <?php } ?>
                       </select>
                       <div
                         class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"
@@ -877,9 +845,24 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
     <div><?php include "../includes/footer.html" ?></div>
   </body>
 <script>
+  const stars = document.querySelectorAll('.star');
+  const ratingInput = document.getElementById('rating-value');
+
+  stars.forEach((star, index) => {
+    star.addEventListener('click', () => {
+      const rating = index + 1;
+      ratingInput.value = rating;
+
+      stars.forEach((s, i) => {
+        s.classList.toggle('text-yellow-400', i < rating);
+        s.classList.toggle('text-gray-300', i >= rating);
+      });
+    });
+  });
       document.addEventListener("DOMContentLoaded", function () {
+      
   // Configuration initiale
-  const PRICE_PER_NIGHT = <?php echo $data[0]["prix_nuit"] ?>;
+  const PRICE_PER_NIGHT = <?php echo $data["prix_nuit"] ?>;
   const SERVICE_FEE = 10;
   
   // État du calendrier
@@ -1366,7 +1349,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
       // Mettre à jour le prix principal
       const nightsElement = document.querySelector(".text-xl.font-semibold.mb-4.nights");
       if (nightsElement) {
-        nightsElement.innerHTML = `${nights} nuits à <?php echo $data[0]["nom_ville"] ?>`;
+        nightsElement.innerHTML = `${nights} nuits à <?php echo $data["nom_ville"] ?>`;
       }
       
       const prixElement = document.querySelector(".text-lg.font-bold");

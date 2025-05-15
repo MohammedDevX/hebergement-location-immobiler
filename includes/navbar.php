@@ -83,7 +83,7 @@ if (isset($_POST["valide"])) {
 	<!-- navbar -->
 	<div class="flex  justify-center">
         <div class="bg-[#005555] w-90/100 h-20 m-5 rounded-lg flex items-center shadow-xl">
-            <a href="../pages/accueil.php" class=" font-[Krylon] text-2xl text-white duration-100 hover:text-[#ffffffcc] px-5">NovaNook</a>
+            <a href="../pages/acceuille.php" class=" font-[Krylon] text-2xl text-white duration-100 hover:text-[#ffffffcc] px-5">NovaNook</a>
 			
             <ul class="flex justify-end w-full">
 				<?php if ($isLoggedIn) { ?>
