@@ -13,7 +13,6 @@ $stmt = $conn->prepare($query);
 $stmt->bindParam(":id", $id);
 $stmt->execute();
 $data = $stmt->fetch(PDO::FETCH_ASSOC);
-// print_r($data);
 
 $today = new DateTime();
 $created = new DateTime($data["created_at"]);
@@ -27,7 +26,6 @@ $stmt->bindParam(":id", $id);
 $stmt->execute();
 $data2 = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $tab = end($data2);
-// print_r($data2);
 
 $query3 = "SELECT date_dispo
             FROM disponibilite
@@ -46,7 +44,9 @@ $stmt4 = $conn->prepare($query4);
 $stmt4->bindParam(":id", $id);
 $stmt4->execute();
 $data4 = $stmt4->fetchAll(PDO::FETCH_ASSOC);
-// print_r($data4);
+
+$tabNotes = array_column($data4, "note");
+
 
 if (isset($_POST['submit_rev'])) {
   $note = $_POST["rating"];
@@ -188,17 +188,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
               For <?php echo $data["capacite"] ?> travelers
             </p>
               <div class="flex items-center mb-6">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4 text-black"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                  />
-                </svg>
-                <label for="PopupRev" class="ml-1 underline hover:cursor-pointer"><?php echo $stmt4->rowCount() ?> review</label>
+                <label for="PopupRev" class="ml-1 underline hover:cursor-pointer"</label>
               </div>
 
             <!-- Host information -->
@@ -214,101 +204,6 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                   <p class="text-gray-600">Host for <?php echo $intervale->format('%y years, %m months, %d days'); ?></p>
                 </div>
               </div>
-            <!-- Detaille annonce Detaillé sous le Hote -->
-            <!-- <div class="space-y-6">
-              <div class="flex items-start">
-                <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6 mr-4 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                    />
-                  </svg>
-                  <div>
-                    <h4 class="font-medium">Room in guest house</h4>
-                    <p class="text-gray-600">
-                      Your private room in accommodation, with access to shared spaces.
-                    </p>
-                  </div>
-                </div>
-
-                <div class="flex items-start">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-6 w-6 mr-4 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                  <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                    />
-                  </svg>
-                  <div>
-                    <h4 class="font-medium">Shared common spaces</h4>
-                    <p class="text-gray-600">
-                      You will share some parts of the accommodation.
-                    </p>
-                  </div>
-                </div>
-
-                <div class="flex items-start">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-6 w-6 mr-4 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                    />
-                  </svg>
-                  <div>
-                    <h4 class="font-medium">Shared bathroom</h4>
-                    <p class="text-gray-600">
-                      You will share the bathroom with other people.
-                    </p>
-                  </div>
-                </div>
-                
-                <div class="flex items-start">
-                  <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-6 w-6 mr-4 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
-                    />
-                  </svg>
-                  <div>
-                    <h4 class="font-medium">Self check-in</h4>
-                    <p class="text-gray-600">
-                      You can access the accommodation by contacting the building staff.
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <!-- Detaille annonce Detaillé sous le Hote -->
             </div>
 
             <!-- Description -->
@@ -316,53 +211,9 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
               <h3 class="text-xl font-semibold mb-4">About this accommodation</h3>
               <p class="mb-2">
                 <?php echo $data["description_annonce"] ?>
-              <!-- <button class="font-medium text-black underline">
-                Read more
-              </button> -->
             </div>
 
             <!-- What this accommodation offers -->
-            <!-- <div class="my-8">
-              <h3 class="text-xl font-semibold mb-4">
-                What this accommodation offers
-              </h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-6 w-6 mr-4 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                    />
-                  </svg>
-                  <span>Lock or latch on bedroom door</span>
-                </div>
-                <div class="flex items-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-6 w-6 mr-4 flex-shrink-0"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                    />
-                  </svg>
-                  <span>Kitchen</span>
-                </div>
-              </div>
-            </div> -->
 
             <!-- Improved calendar -->
             <div class="my-8">
@@ -447,21 +298,21 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                               <?php } else { ?>
                                 <i class="fa-regular fa-star"></i>
                               <?php };
-                             } ?>
+                            } ?>
                               </div>
                               <span>· <?php echo explode(' ', $avis["created_at"])[0] ?></span>
                           </div>
                         </div>
                       </div>
                   <p class="text-gray-700 mb-4">
-                       <?php echo $avis["commentaire"] ?>.
+                      <?php echo $avis["commentaire"] ?>.
                   </p>
               </div>
                 <?php } ?>
                 
               
               <!-- Review Form -->
-               <?php if (!empty($_SESSION["user_id"])) {?>
+              <?php if (!empty($_SESSION["user_id"])) {?>
                 <div class="bg-white p-6 rounded-xl shadow-sm">
                   <h2 class="text-xl font-bold text-novanook-teal mb-6">Write a Review</h2>
                     <form id="review-form" method="post" action="detaille.php?id=<?php echo $_GET['id']; ?>">
@@ -493,46 +344,46 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                 
             <!-- Comments -->
             <div class="my-8">
-              <h3 class="text-xl font-semibold mb-4">3 reviews</h3>
-              <p class="text-gray-600 mb-6">
-                The average rating will appear after 3 reviews
-              </p>
-
-              <div class="mb-8">
-                <div class="flex items-center mb-2">
-                  <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx0CIy3mIbpe2nuLRfK5xxPcwxmTvXjJsBNw&s"
-                    alt="Photo Kim"
-                    class="w-10 h-10 rounded-full mr-2"
-                  />
-                  <div>
-                    <h4 class="font-medium">Kim</h4>
-                    <p class="text-sm text-gray-600">10 years on Airbnb</p>
+              <label for="PopupRev" class="ml-1 underline hover:cursor-pointer"><?php echo $stmt4->rowCount()<=1 ? $stmt4->rowCount() ." review" : $stmt4->rowCount() ." reviews" ?></label>
+              <?php if ($stmt4->rowCount()>0) {?>
+    
+                  <div class="mb-8">
+                    <div class="flex items-center mb-2">
+                      <img
+                        src="../<?php echo $data4[0]["photo_profil"] ?>"
+                        alt="<?php echo $data4[0]["nom"] ?>"
+                        class="w-10 h-10 rounded-full mr-2"
+                      />
+                      <div>
+                        <h4 class="font-medium"><?php echo $data4[0]["nom"] ?> <?php echo $data4[0]["prenom"] ?></h4>
+                      </div>
+                    </div>
+                    <div class="flex items-center mb-2">
+                      <?php for ($i=1; $i<=5; $i++) { 
+                                  if ($i<=$data4[0]["note"]) {?>
+                                  <i class="fas fa-star"></i>
+                                  <?php } else { ?>
+                                    <i class="fa-regular fa-star"></i>
+                                  <?php };
+                                } ?>
+                      <span class="ml-2 text-gray-600"><?php echo explode(' ', $avis["created_at"])[0] ?></span>
+                    </div>
+                    <?php
+                    $commentaire = $data4[0]["commentaire"];
+                    $short = mb_strimwidth($commentaire, 0, 100, "...");
+                    if (mb_strlen($commentaire) >= 100) {
+                        echo $short;?>
+                        <br><label for="PopupRev" class=" text-black underline hover:cursor-pointer">Read more</label>
+                    <?php } else {
+                        echo $commentaire;
+                    }
+                    ?>
+                    </p>
                   </div>
-                </div>
-                <div class="flex items-center mb-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="h-4 w-4 text-black"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                    />
-                  </svg>
-                  <span class="ml-2 text-gray-600">May 2023</span>
-                </div>
-                <p class="mb-2">
-                  No room available upon arrival. An exaggerated day searching for alternative accommodation without getting the money back.
-                </p>
-                <p class="mb-4">
-                  It's really a scam to bring tourists to a...
-                </p>
-                <label for="PopupRev" class=" text-black underline hover:cursor-pointer">Read more</label>
-              </div>
-
-            </div>
+    
+                  
+                  <?php } ?>
+                  </div>
 
             <!-- The host -->
             <div class="my-8">
@@ -543,23 +394,23 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
               <div class="flex flex-col md:flex-row bg-gray-50 rounded-xl p-4 md:p-6">
                 <div class="md:w-1/3 flex flex-col items-center text-center mb-6 md:mb-0">
                   <img
-                    src="<?php echo $data["photo_profil"] ?>"
+                    src="../<?php echo $data["photo_profil"] ?>"
                     alt="Photo Karim"
                     class="w-20 h-20 md:w-24 md:h-24 rounded-full mb-4"
                   />
-                  <h4 class="text-xl md:text-2xl font-medium">Karim</h4>
+                  <h4 class="text-xl md:text-2xl font-medium"><?php echo $data["nom"] ?> <?php echo $data["prenom"] ?></h4>
                   <p>Host</p>
                 </div>
 
                 <div class="md:w-2/3 md:pl-8">
                   <div class="flex flex-col sm:flex-row sm:items-center mb-4 space-y-2 sm:space-y-0">
                     <div class="flex items-center mr-0 sm:mr-8 mb-2 sm:mb-0">
-                      <span class="text-2xl font-medium mr-1">7</span>
-                      <span class="text-gray-600">reviews</span>
+                      <span class="text-2xl font-medium mr-1"><?php echo $stmt4->rowCount() ?></span>
+                      <span class="text-gray-600"><?php echo $stmt4->rowCount()<=1 ? " review" : " reviews" ?></span>
                     </div>
                     <div class="flex items-center">
                       <div class="flex items-center mr-1">
-                        <span class="text-2xl font-medium mr-1">3.57</span>
+                        <span class="text-2xl font-medium mr-1"><?php echo (array_sum($tabNotes))/$stmt4->rowCount() ?></span>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           class="h-5 w-5"
@@ -576,55 +427,9 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                   </div>
 
                   <p class="mb-4">
-                    <span class="font-medium mb-2">5</span>
-                    <span class="text-gray-600">years as a host</span>
+                    <span class="font-medium mb-2"><?php echo $intervale->format('%y years, %m months, %d days'); ?></span>
+                    <span class="text-gray-600"> as a host</span>
                   </p>
-
-                  <div class="space-y-6">
-                    <div class="flex items-start">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-6 w-6 mr-2 flex-shrink-0"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                        />
-                      </svg>
-                      <div>
-                        <h5 class="font-medium">
-                          My proMarakeshsion: general manager of RIAD CHAHD PALACE
-                        </h5>
-                      </div>
-                    </div>
-
-                    <div class="flex items-start">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-6 w-6 mr-2 flex-shrink-0"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
-                        />
-                      </svg>
-                      <div>
-                        <h5 class="font-medium">
-                          Languages spoken: Arabic, English and French
-                        </h5>
-                      </div>
-                    </div>
-                  </div>
 
                   <div class="mt-6">
                     <button
@@ -649,7 +454,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                       />
                     </svg>
                     <p>
-                      To protect your payment, always use Airbnb to send money and communicate with hosts.
+                      To protect your payment, always use NovaBook to send money and communicate with hosts.
                     </p>
                   </div>
                 </div>
@@ -743,16 +548,10 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
         <div class="h-64 sm:h-80 md:h-96 bg-gray-200 rounded-xl mb-4 relative">
           <!-- Placeholder for the map -->
           <div class="absolute inset-0 flex items-center justify-center">
-            <p class="text-gray-500">Map of Marakesh, Morocco</p>
+            <p class="text-gray-500">Map of <?php echo $data["nom_ville"] ?>, Morocco</p>
           </div>
         </div>
-        <p class="text-lg mb-2">Marakesh, Morocco</p>
-        <p class="text-gray-600 mb-6">
-          The riad is located in the heart of the Marakesh medina, close to the main tourist sites and traditional souks.
-        </p>
-        <button class="font-medium text-black underline">
-          Show more information about the location
-        </button>
+        <p class="text-lg mb-2"><?php echo $data["nom_ville"] ?>, Morocco</p>
       </div>
     </div>
 

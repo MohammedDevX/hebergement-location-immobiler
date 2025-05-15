@@ -140,7 +140,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
     </style>
 </head>
-<body class="h-[2000px]">
+<body>
     <?php if ($hasNotification): ?>
     <!-- Notification -->
     <div id="notification" class="notification notification-<?php echo $type; ?>">

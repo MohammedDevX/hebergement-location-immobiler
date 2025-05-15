@@ -23,7 +23,7 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>Document</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
-<body class="">
+<body>
 	<div class="navbar-container">
         <?php include "../includes/navbar.php" ?>
     </div>
