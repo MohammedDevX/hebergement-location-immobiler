@@ -98,7 +98,7 @@ if (isset($_POST["valide"])) {
 						<ul class="flex flex-col text-sm pointer-events-auto">
 							<li class="hover:cursor-pointer mb-5">
 								<label class="text-[#EFE9E7] text-center hover:cursor-pointer block font-[Krylon] text-[1.2em] duration-400 hover:text-[#888098]">
-										<a href="../pages/Profile.php" class="text-center font-[Grotesk] text-[1em] text-white hover:text-[#ffffffcc]">Profile</a>
+										<a href="../pages/profile.php?id_locataire=<?php echo $_SESSION["user_id"]["id_locataire"] ?>" class="text-center font-[Grotesk] text-[1em] text-white hover:text-[#ffffffcc]">Profile</a>
 								</label>
 							</li>
 							<li class="hover:cursor-pointer">

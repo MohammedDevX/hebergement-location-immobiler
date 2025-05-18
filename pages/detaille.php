@@ -4,7 +4,7 @@ require "../includes/connection.php";
 
 $id = $_GET["id"];
 
-$query = "SELECT annonce.*, hote.created_at, ville.nom_ville, locataire.nom, locataire.prenom, locataire.photo_profil
+$query = "SELECT annonce.*, hote.created_at, locataire.id_locataire, ville.nom_ville, locataire.nom, locataire.prenom, locataire.photo_profil
           FROM annonce INNER JOIN ville ON annonce.id_ville=ville.id_ville 
           INNER JOIN hote ON annonce.id_hote=hote.id_hote 
           INNER JOIN locataire ON hote.id_locataire=locataire.id_locataire
@@ -36,7 +36,7 @@ $stmt->execute();
 $data3 = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $data3 = json_encode($data3);
 
-$query4 = "SELECT avis.note, avis.commentaire, avis.created_at, locataire.nom, locataire.prenom, locataire.photo_profil
+$query4 = "SELECT avis.note, avis.commentaire, avis.created_at, locataire.id_locataire, locataire.nom, locataire.prenom, locataire.photo_profil
           FROM avis INNER JOIN annonce ON annonce.id_annonce=avis.id_annonce
           INNER JOIN locataire ON avis.id_locataire=locataire.id_locataire
           WHERE annonce.id_annonce=:id";
@@ -68,7 +68,7 @@ const unavailableDates = <?php echo $data3; ?>;
 
 // Convertir le format de date de la base de données en objets Date JavaScript
 const parsedUnavailableDates = unavailableDates.map(item => {
-  const dateStr = item.date_indispo;
+  const dateStr = item.date_dispo;
   const [year, month, day] = dateStr.split('-').map(Number);
   // Créer un objet Date (mois -1 car en JavaScript les mois commencent à 0)
   return new Date(year, month - 1, day);
@@ -92,14 +92,14 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
     <link rel="stylesheet" href="../assets/css/detaille.css">
     <style>
       @font-face {
-			font-family: 'Krylon';
-			src: url("../assets/fonts/Krylon-Regular.otf") format("opentype");
-			font-weight: 900;
-		}
-		@font-face {
-			font-family: 'Grotesk';
-			src: url("../assets/fonts/Grotesk-Regular.ttf") format("truetype");
-		}
+      font-family: 'Krylon';
+      src: url("../assets/fonts/Krylon-Regular.otf") format("opentype");
+      font-weight: 900;
+    }
+    @font-face {
+      font-family: 'Grotesk';
+      src: url("../assets/fonts/Grotesk-Regular.ttf") format("truetype");
+    }
     </style>
   </head>
 <body class="bg-gray-100 font-[Grotesk] text-gray-900">
@@ -188,21 +188,23 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
               For <?php echo $data["capacite"] ?> travelers
             </p>
               <div class="flex items-center mb-6">
-                <label for="PopupRev" class="ml-1 underline hover:cursor-pointer"</label>
+                <label for="PopupRev" class="ml-1 underline hover:cursor-pointer"><?php echo $stmt4->rowCount()<=1 ? $stmt4->rowCount() ." review" : $stmt4->rowCount() ." reviews" ?></label>
               </div>
 
             <!-- Host information -->
             <div class="border-t border-b border-gray-200 py-8 my-8">
               <div class="flex items-center mb-6">
+              <a href="profileUser.php?id_hote=<?php echo $data["id_locataire"]?>">
                 <img
-                  src="../<?php echo $data["photo_profil"] ?>"
-                  alt="<?php echo $data["nom"] ?> <?php echo $data["prenom"] ?>"
-                  class="w-12 h-12 rounded-full mr-4"
-                />
-                <div>
-                  <h3 class="font-medium">Host: <?php echo $data["nom"] ?> <?php echo $data["prenom"] ?></h3>
-                  <p class="text-gray-600">Host for <?php echo $intervale->format('%y years, %m months, %d days'); ?></p>
-                </div>
+                    src="../<?php echo $data["photo_profil"] ?>"
+                    alt="<?php echo $data["nom"] ?> <?php echo $data["prenom"] ?>"
+                    class="w-12 h-12 rounded-full mr-4"
+                  />
+                  <div>
+                    <h3 class="font-medium">Host: <?php echo $data["nom"] ?> <?php echo $data["prenom"] ?></h3>
+                    <p class="text-gray-600">Host for <?php echo $intervale->format('%y years, %m months, %d days'); ?></p>
+                  </div>
+                </a>  
               </div>
             </div>
 
@@ -282,14 +284,17 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
             <input type="radio" id="PopupRev" name="Modal" class="hidden peer/editPrfl">
             <label for="hide" class="hidden peer-checked/editPrfl:block fixed inset-0 z-40 custom-overlay"></label>
             <div class="font-[Grotesk] hidden fixed inset-0 peer-checked/editPrfl:flex items-center justify-center min-h-screen z-50 overflow-y-auto pointer-events-none">
-          		<div class="bg-white shadow-md rounded-lg p-6 w-[90%] max-w-lg hide-scrollbar max-h-[80vh] lg:max-w-[70%] md:max-w-[80%] pointer-events-auto overflow-y-auto">
+              <div class="bg-white shadow-md rounded-lg p-6 w-[90%] max-w-lg hide-scrollbar max-h-[80vh] lg:max-w-[70%] md:max-w-[80%] pointer-events-auto overflow-y-auto">
                 <!-- Review 1 -->
                 <?php foreach ($data4 as $dt=>$avis) { ?>
                 <div class="bg-white p-6 mb-4 rounded-xl shadow-sm">
                   <div class="flex items-center mb-4">
-                    <img src="../<?php echo $avis["photo_profil"] ?>" alt="<?php echo $avis["nom"] ?>" class="w-12 h-12 rounded-full mr-4">
-                    <div>
-                          <h3 class="font-bold text-novanook-teal"><?php echo $avis["nom"] ?> <?php echo $avis["prenom"] ?></h3>
+                    <a href="profileUser.php?id_locataire=<?php echo $avis["id_locataire"] ?>">
+                      <img src="../<?php echo $avis["photo_profil"] ?>" alt="<?php echo $avis["nom"] ?>" class="w-12 h-12 rounded-full mr-4">
+
+                      <div>
+                        <h3 class="font-bold text-novanook-teal"><?php echo $avis["nom"] ?> <?php echo $avis["prenom"] ?></h3>
+                      </a>
                           <div class="flex items-center text-gray-500 text-sm">
                             <div class="flex text-yellow-400 mr-2">
                             <?php for ($i=1; $i<=5; $i++) { 
@@ -349,13 +354,16 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
     
                   <div class="mb-8">
                     <div class="flex items-center mb-2">
-                      <img
-                        src="../<?php echo $data4[0]["photo_profil"] ?>"
-                        alt="<?php echo $data4[0]["nom"] ?>"
-                        class="w-10 h-10 rounded-full mr-2"
-                      />
-                      <div>
-                        <h4 class="font-medium"><?php echo $data4[0]["nom"] ?> <?php echo $data4[0]["prenom"] ?></h4>
+                      <a href="profileUser.php?id_locataire=<?php echo $data4[0]["id_locataire"] ?>">
+                        <img
+                          src="../<?php echo $data4[0]["photo_profil"] ?>"
+                          alt="<?php echo $data4[0]["nom"] ?>"
+                          class="w-10 h-10 rounded-full mr-2"
+                        />
+
+                        <div>
+                          <h4 class="font-medium"><?php echo $data4[0]["nom"] ?> <?php echo $data4[0]["prenom"] ?></h4>
+                        </a>
                       </div>
                     </div>
                     <div class="flex items-center mb-2">
@@ -393,12 +401,14 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
 
               <div class="flex flex-col md:flex-row bg-gray-50 rounded-xl p-4 md:p-6">
                 <div class="md:w-1/3 flex flex-col items-center text-center mb-6 md:mb-0">
-                  <img
-                    src="../<?php echo $data["photo_profil"] ?>"
-                    alt="Photo Karim"
-                    class="w-20 h-20 md:w-24 md:h-24 rounded-full mb-4"
-                  />
-                  <h4 class="text-xl md:text-2xl font-medium"><?php echo $data["nom"] ?> <?php echo $data["prenom"] ?></h4>
+                  <a href="profileUser.php?id_hote=<?php echo $data["id_locataire"] ?>">
+                    <img
+                      src="../<?php echo $data["photo_profil"] ?>"
+                      alt="<?php echo $data["nom"] ?>"
+                      class="w-20 h-20 md:w-24 md:h-24 rounded-full mb-4"
+                    />
+                    <h4 class="text-xl md:text-2xl font-medium"><?php echo $data["nom"] ?> <?php echo $data["prenom"] ?></h4>
+                  </a>
                   <p>Host</p>
                 </div>
 
@@ -410,7 +420,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                     </div>
                     <div class="flex items-center">
                       <div class="flex items-center mr-1">
-                        <span class="text-2xl font-medium mr-1"><?php echo (array_sum($tabNotes))/$stmt4->rowCount() ?></span>
+                        <span class="text-2xl font-medium mr-1"><?php echo $stmt4->rowCount()>=1 ? (array_sum($tabNotes))/$stmt4->rowCount() : 0 ?></span>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           class="h-5 w-5"
@@ -470,73 +480,83 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
                   <span class="text-xxl font-normal">Enter your dates to <br> display prices</span>
                 </h3>
               </div>
-
-              <div class="border border-gray-300 rounded-lg overflow-hidden mb-3">
-                <div class="grid grid-cols-2">
-                  <div class="border-r border-b border-gray-300 p-2">
-                    <p class="text-xs font-medium">ARRIVAL</p>
-                    <p class="font-medium text-sm" id="startDate">11/04/2025</p>
-                  </div>
-                  <div class="border-b border-gray-300 p-2">
-                    <p class="text-xs font-medium">DEPARTURE</p>
-                    <p class="font-medium text-sm" id="endDate">16/04/2025</p>
-                  </div>
-                  <div class="col-span-2 p-2">
-                    <div class="relative">
-                      <p class="text-xs font-medium">TRAVELERS</p>
-                      <select class="w-full appearance-none bg-transparent font-medium text-sm focus:outline-none">
-                        <?php for ($i = 1; $i <= $data['capacite']; $i++) { ?>
-                          <option value="<?php echo $i; ?>"><?php echo $i; ?> traveler<?php echo $i > 1 ? 's' : ''; ?></option>
-                        <?php } ?>
-                      </select>
-                      <div
-                        class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"
-                        style="top: 15px"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          class="h-4 w-4"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
+              <form action="paiement.php" method="post">
+                <!-- Champs cachés pour stocker les données de réservation -->
+                <input type="hidden" name="start_date" id="start_date_input">
+                <input type="hidden" name="end_date" id="end_date_input">
+                <input type="hidden" name="nights" id="nights_input">
+                <input type="hidden" name="price_per_night" id="price_per_night_input" value="<?php echo $data["prix_nuit"]; ?>">
+                <input type="hidden" name="service_fee" id="service_fee_input">
+                <input type="hidden" name="total_price" id="total_price_input">
+                <input type="hidden" name="accommodation_id" value="<?php echo $data["id_annonce"]; ?>">
+                <input type="hidden" name="accommodation_title" value="<?php echo $data["titre"]; ?>">
+                <input type="hidden" name="accommodation_city" value="<?php echo $data["nom_ville"]; ?>">
+                
+                <div class="border border-gray-300 rounded-lg overflow-hidden mb-3">
+                  <div class="grid grid-cols-2">
+                    <div class="border-r border-b border-gray-300 p-2">
+                      <p class="text-xs font-medium">ARRIVAL</p>
+                      <p class="font-medium text-sm" id="startDate"></p>
+                    </div>
+                    <div class="border-b border-gray-300 p-2">
+                      <p class="text-xs font-medium">DEPARTURE</p>
+                      <p class="font-medium text-sm" id="endDate"></p>
+                    </div>
+                    <div class="col-span-2 p-2">
+                      <div class="relative">
+                        <p class="text-xs font-medium">TRAVELERS</p>
+                        <select name="travelers" class="w-full appearance-none bg-transparent font-medium text-sm focus:outline-none">
+                          <?php for ($i = 1; $i <= $data['capacite']; $i++) { ?>
+                            <option value="<?php echo $i; ?>"><?php echo $i; ?> traveler<?php echo $i > 1 ? 's' : ''; ?></option>
+                          <?php } ?>
+                        </select>
+                        <div
+                          class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"
+                          style="top: 15px"
                         >
-                          <path
-                            fill-rule="evenodd"
-                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                            clip-rule="evenodd"
-                          />
-                        </svg>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-4 w-4"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                              clip-rule="evenodd"
+                            />
+                          </svg>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-
-
-
               <div class="space-y-2 text-sm">
-                <div class="flex justify-between">
+                <div class="flex justify-between" id="price-per-night-row">
                   <!-- <p class="underline"></p> -->
                   <!-- <p>1 425 €</p> -->
                 </div>
-                <div class="flex justify-between">
+                <div class="flex justify-between" id="service-fee-row">
                   <p class="underline">Service fees</p>
                   <p>0 DH</p>
                 </div>
                 <div
-                  class="flex justify-between border-t border-gray-300 pt-2 font-bold"
+                  class="flex justify-between border-t border-gray-300 pt-2 font-bold" id="total-price-row"
                 >
                   <p>Total</p>
                   <p>0 DH</p>
                 </div>
               </div>
 
-              <a href="paiement.php"><button
-                class="w-full text-white py-2 rounded-lg font-bold mt-3"
+              <button type="submit" id="book-now-btn"
+                class="w-full text-white py-2 rounded-lg font-bold mt-3 disabled:opacity-50 disabled:cursor-not-allowed"
                 style="background-color: #005555"
+                disabled
               >
                 Book now
               </button>
-              </a>
+              
+              </form>
             </div>
           </div>
         </div>
@@ -662,7 +682,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
       
   // Configuration initiale
   const PRICE_PER_NIGHT = <?php echo $data["prix_nuit"] ?>;
-  const SERVICE_FEE = 10;
+  const SERVICE_FEE = 10; // 10% de frais de service
   
   // État du calendrier
   let currentViewDate = new Date(); 
@@ -676,6 +696,15 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
   const endDateElement = document.getElementById("endDate");
   const dateRangeDisplay = document.getElementById("dateRangeDisplay");
   const clearDatesBtn = document.getElementById("clearDatesBtn");
+  const bookNowBtn = document.getElementById("book-now-btn");
+  
+  // Éléments pour le formulaire
+  const startDateInput = document.getElementById("start_date_input");
+  const endDateInput = document.getElementById("end_date_input");
+  const nightsInput = document.getElementById("nights_input");
+  const pricePerNightInput = document.getElementById("price_per_night_input");
+  const serviceFeeInput = document.getElementById("service_fee_input");
+  const totalPriceInput = document.getElementById("total_price_input");
   
   // Noms des mois en français
   const monthNames = [
@@ -686,9 +715,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
   // Jours de la semaine en français (version courte)
   const weekDaysShort = ["Lun.", "Mar.", "Mer.", "Jeu.", "Ven.", "Sam.", "Dim."];
   
-  // PARTIE MODIFIÉE: Récupération des dates indisponibles depuis PHP
-  // ---------------------------------------------------------------
-  // Déclaration de la variable $data3 (simulée pour l'exemple)
+  // Récupération des dates indisponibles depuis PHP
   const unavailableDatesData = <?php echo $data3; ?>;
   console.log("Dates indisponibles récupérées:", unavailableDatesData);
   const unavailableDates = parseUnavailableDates(unavailableDatesData);
@@ -704,9 +731,9 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
     }
     
     dateArray.forEach(item => {
-      if (item && item.date_dispo) { // MODIFIÉ: date_indispo -> date_dispo
+      if (item && item.date_dispo) { // date_dispo est le nom du champ dans la base de données
         try {
-          const dateParts = item.date_dispo.split('-'); // MODIFIÉ: date_indispo -> date_dispo
+          const dateParts = item.date_dispo.split('-');
           if (dateParts.length === 3) {
             const year = parseInt(dateParts[0]);
             const month = parseInt(dateParts[1]) - 1; // Les mois sont indexés à partir de 0
@@ -718,7 +745,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
             }
           }
         } catch (error) {
-          console.error("Erreur lors du traitement de la date:", item.date_dispo, error); // MODIFIÉ: date_indispo -> date_dispo
+          console.error("Erreur lors du traitement de la date:", item.date_dispo, error);
         }
       }
     });
@@ -735,8 +762,6 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
       date.getFullYear() === unavailableDate.getFullYear()
     );
   }
-  // ---------------------------------------------------------------
-  // FIN DE LA PARTIE MODIFIÉE
   
   // Initialiser le calendrier
   function initCalendar() {
@@ -746,7 +771,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
     // Générer les mois
     updateCalendarMonths();
     
-    // Initialiser les dates par défaut (11-16 avril 2025)
+    // Initialiser les dates par défaut
     setDefaultDates();
     
     // Ajouter les écouteurs d'événements
@@ -936,8 +961,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
     }
   }
   
-  // FONCTION MODIFIÉE: Générer un mois du calendrier
-  // ---------------------------------------------------------------
+  // Générer un mois du calendrier
   function generateMonth(date, containerId) {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -974,16 +998,16 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
       // Créer un objet Date pour le jour actuel
       const currentDate = new Date(year, month, day);
       
-      // MODIFICATION: Vérifier si le jour est dans le passé OU indisponible
+      // Vérifier si le jour est dans le passé OU indisponible
       if (currentDate < today || isDateUnavailable(currentDate)) {
         dayElement.classList.add("text-gray-300");
         dayElement.classList.remove("cursor-pointer");
         
-        // NOUVEAU: Ajouter une classe spécifique pour les dates indisponibles
+        // Ajouter une classe spécifique pour les dates indisponibles
         if (isDateUnavailable(currentDate)) {
           dayElement.classList.add("date-unavailable");
           
-          // NOUVEAU: Ajouter une barre diagonale pour indiquer que la date est indisponible
+          // Ajouter une barre diagonale pour indiquer que la date est indisponible
           dayElement.innerHTML = `
             <div class="relative">
               ${day}
@@ -1017,8 +1041,6 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
       }
     }
   }
-  // ---------------------------------------------------------------
-  // FIN DE LA FONCTION MODIFIÉE
   
   // Gérer le clic sur un jour
   function handleDayClick(event) {
@@ -1051,7 +1073,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
       
       // Vérifier que la date de fin est chronologiquement après la date de début
       if (clickedDate > startDate) {
-        // AJOUT: Vérifier qu'aucune date entre startDate et clickedDate n'est indisponible
+        // Vérifier qu'aucune date entre startDate et clickedDate n'est indisponible
         if (!areDatesInRangeUnavailable(startDate, clickedDate)) {
           dayElement.classList.add("day-selected");
           endDate = clickedDate;
@@ -1072,7 +1094,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
     }
   }
   
-  // AJOUT: Vérifier si des dates dans la plage sont indisponibles
+  // Vérifier si des dates dans la plage sont indisponibles
   function areDatesInRangeUnavailable(start, end) {
     const currentDate = new Date(start);
     currentDate.setDate(currentDate.getDate() + 1); // Commencer au jour après la date de début
@@ -1122,17 +1144,36 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
     if (startDate) {
       if (startDateElement) startDateElement.textContent = formatDate(startDate, "dd/mm/yyyy");
       
+      // Mettre à jour le champ caché pour le formulaire
+      if (startDateInput) startDateInput.value = formatDate(startDate, "yyyy-mm-dd");
+      
       if (endDate) {
         if (endDateElement) endDateElement.textContent = formatDate(endDate, "dd/mm/yyyy");
         if (dateRangeDisplay) dateRangeDisplay.textContent = `${formatDate(startDate, "d mmm yyyy")} - ${formatDate(endDate, "d mmm yyyy")}`;
+        
+        // Mettre à jour le champ caché pour le formulaire
+        if (endDateInput) endDateInput.value = formatDate(endDate, "yyyy-mm-dd");
+        
+        // Activer le bouton de réservation
+        if (bookNowBtn) bookNowBtn.disabled = false;
       } else {
         if (endDateElement) endDateElement.textContent = "--/--/----";
         if (dateRangeDisplay) dateRangeDisplay.textContent = `${formatDate(startDate, "d mmm yyyy")} - Sélectionnez une date de fin`;
+        
+        // Désactiver le bouton de réservation
+        if (bookNowBtn) bookNowBtn.disabled = true;
       }
     } else {
       if (startDateElement) startDateElement.textContent = "--/--/----";
       if (endDateElement) endDateElement.textContent = "--/--/----";
       if (dateRangeDisplay) dateRangeDisplay.textContent = "";
+      
+      // Réinitialiser les champs cachés
+      if (startDateInput) startDateInput.value = "";
+      if (endDateInput) endDateInput.value = "";
+      
+      // Désactiver le bouton de réservation
+      if (bookNowBtn) bookNowBtn.disabled = true;
     }
   }
   
@@ -1142,8 +1183,14 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
       // Calculer le nombre de nuits
       const nights = calculateNights(startDate, endDate);
       const totalPrice = nights * PRICE_PER_NIGHT;
-      const totalPlusFrais = totalPrice + (totalPrice * (SERVICE_FEE/100));
-      const fraisServ =  totalPlusFrais - totalPrice;
+      const serviceFee = totalPrice * (SERVICE_FEE/100);
+      const totalPlusFees = totalPrice + serviceFee;
+      
+      // Mettre à jour les champs cachés pour le formulaire
+      if (nightsInput) nightsInput.value = nights;
+      if (pricePerNightInput) pricePerNightInput.value = PRICE_PER_NIGHT;
+      if (serviceFeeInput) serviceFeeInput.value = serviceFee;
+      if (totalPriceInput) totalPriceInput.value = totalPlusFees;
       
       // Mettre à jour le prix principal
       const nightsElement = document.querySelector(".text-xl.font-semibold.mb-4.nights");
@@ -1157,11 +1204,20 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
       }
       
       // Mettre à jour le détail des prix
-      const priceDetails = document.querySelectorAll(".space-y-2.text-sm .flex");
-      if (priceDetails.length >= 3) {
-        priceDetails[0].innerHTML = `<p class="underline">${PRICE_PER_NIGHT} DH x ${nights} nuits</p><p>${totalPrice} DH</p>`;
-        priceDetails[1].innerHTML = `<p class="underline">Frais de service</p><p >${fraisServ} DH</p>`;
-        priceDetails[2].innerHTML = `<p>Total</p><p>${totalPlusFrais} DH</p>`; // CORRIGÉ: € -> DH
+      const pricePerNightRow = document.getElementById("price-per-night-row");
+      const serviceFeeRow = document.getElementById("service-fee-row");
+      const totalPriceRow = document.getElementById("total-price-row");
+      
+      if (pricePerNightRow) {
+        pricePerNightRow.innerHTML = `<p class="underline">${PRICE_PER_NIGHT} DH x ${nights} nuits</p><p>${totalPrice} DH</p>`;
+      }
+      
+      if (serviceFeeRow) {
+        serviceFeeRow.innerHTML = `<p class="underline">Frais de service</p><p>${serviceFee.toFixed(2)} DH</p>`;
+      }
+      
+      if (totalPriceRow) {
+        totalPriceRow.innerHTML = `<p>Total</p><p>${totalPlusFees.toFixed(2)} DH</p>`;
       }
     } else {
       const nightsElement = document.querySelector(".text-xl.font-semibold.mb-4.nights");
@@ -1175,11 +1231,26 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
         prixElement.innerHTML = "<span class='text-xxl font-normal'>Indiquez vos dates pour <br> afficher les prix</span>";
       }
       
-      const priceDetails = document.querySelectorAll(".space-y-2.text-sm .flex");
-      if (priceDetails.length >= 3) {
-        priceDetails[0].innerHTML = '<p class="underline"></p>';
-        priceDetails[1].innerHTML = `<p class="underline">Frais de service</p><p >0 DH</p>`;
-        priceDetails[2].innerHTML = '<p>Total</p><p>0 DH</p>'; // CORRIGÉ: € -> DH
+      // Réinitialiser les champs cachés
+      if (nightsInput) nightsInput.value = "";
+      if (serviceFeeInput) serviceFeeInput.value = "";
+      if (totalPriceInput) totalPriceInput.value = "";
+      
+      // Réinitialiser les lignes de prix
+      const pricePerNightRow = document.getElementById("price-per-night-row");
+      const serviceFeeRow = document.getElementById("service-fee-row");
+      const totalPriceRow = document.getElementById("total-price-row");
+      
+      if (pricePerNightRow) {
+        pricePerNightRow.innerHTML = '<p class="underline"></p>';
+      }
+      
+      if (serviceFeeRow) {
+        serviceFeeRow.innerHTML = `<p class="underline">Frais de service</p><p>0 DH</p>`;
+      }
+      
+      if (totalPriceRow) {
+        totalPriceRow.innerHTML = '<p>Total</p><p>0 DH</p>';
       }
     }
   }
@@ -1203,22 +1274,16 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
       return `${day < 10 ? '0' + day : day}/${month < 10 ? '0' + month : month}/${year}`;
     } else if (format === "d mmm yyyy") {
       return `${day} ${monthNames[month - 1].toLowerCase().substring(0, 3)}. ${year}`;
+    } else if (format === "yyyy-mm-dd") {
+      return `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
     }
     
     return `${day}/${month}/${year}`;
   }
   
-  // Définir les dates par défaut (11-16 avril 2025)
+  // Définir les dates par défaut
   function setDefaultDates() {
-    // startDate = new Date(); // 11 avril 2025
-    // startMonth = 4; // Avril
-    // endDate = new Date(); // 16 avril 2025
-    // endMonth = 4; // Avril
-    
-    // Marquer les jours sélectionnés
-    markSelectedDates();
-    
-    // Mettre à jour l'affichage
+    // Pas de dates par défaut, l'utilisateur doit les sélectionner
     updateDateDisplay();
   }
   
@@ -1257,23 +1322,6 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
         console.log("Dates effacées");
       });
     }
-    
-    // Gestion des boutons de réservation
-    const bookingBtns = document.querySelectorAll(
-      'button.bg-rose-600, button[style*="background-color:#005555"]'
-    );
-    
-    bookingBtns.forEach(btn => {
-      btn.addEventListener("click", function () {
-        if (startDate && endDate) {
-          alert(
-            `Réservation initiée pour la période du ${formatDate(startDate)} au ${formatDate(endDate)}`
-          );
-        } else {
-          alert("Veuillez sélectionner vos dates de séjour avant de réserver");
-        }
-      });
-    });
     
     // Gestion de la galerie photos
     const showGalleryBtn = document.getElementById("showGalleryBtn");
@@ -1349,8 +1397,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
     });
   }
   
-  // NOUVEAU: Ajouter le style CSS pour les dates indisponibles
-  // ---------------------------------------------------------------
+  // Ajouter le style CSS pour les dates indisponibles
   const styleElement = document.createElement('style');
   styleElement.textContent = `
     .date-unavailable {
@@ -1381,8 +1428,6 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
     }
   `;
   document.head.appendChild(styleElement);
-  // ---------------------------------------------------------------
-  // FIN DU NOUVEAU STYLE CSS
   
   // Initialiser le calendrier
   initCalendar();
@@ -1393,4 +1438,3 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
   <!-- <script src="../assets/js/api.js"></script>   -->
   </body>
 </html>
-
