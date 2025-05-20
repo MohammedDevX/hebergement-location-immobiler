@@ -34,16 +34,21 @@ if (isset($_SESSION['notification'])) {
     unset($_SESSION['notification']);
 }
 
-$query = "SELECT * 
-            FROM annonce INNER JOIN photos ON annonce.id_annonce=photos.id_annonce
-            INNER JOIN ville ON annonce.id_ville=ville.id_ville
-            INNER JOIN hote ON annonce.id_hote=hote.id_hote
-            INNER JOIN locataire ON hote.id_locataire=locataire.id_locataire
-            ORDER BY annonce.id_annonce ASC";
+$query = "SELECT p.photo, a.id_annonce, v.nom_ville, l.nom, l.prenom, a.prix_nuit
+        FROM annonce a
+        INNER JOIN (
+            SELECT id_annonce, MIN(id_photo) as min_photo_id
+            FROM photos
+            GROUP BY id_annonce
+        ) as first_photos ON a.id_annonce = first_photos.id_annonce
+        INNER JOIN photos p ON p.id_photo = first_photos.min_photo_id
+        INNER JOIN ville v ON a.id_ville = v.id_ville
+        INNER JOIN hote h ON a.id_hote = h.id_hote
+        INNER JOIN locataire l ON h.id_locataire = l.id_locataire";
 $stmt = $conn->prepare($query);
 $stmt->execute();
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-// print_r($data);
+print_r($data);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -200,19 +205,19 @@ $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             <div class="mt-10 grid px- grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-1 xl:grid-cols-4 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5">
                 <!-- Start Propr... -->
-                <?php foreach ($data as $dt=>$img) { ?>
+                <?php for ($i=0; $i<$stmt->rowCount(); $i++) { ?>
                 <div class="group relative">
-                    <img src="<?php echo $img["photo"] ?>" class="aspect-square w-full rounded-md bg-gray-200 object-cover group-hover:opacity-75 duration-300">
+                    <img src="<?php echo $data[$i]["photo"] ?>" class="aspect-square w-full rounded-md bg-gray-200 object-cover group-hover:opacity-75 duration-300">
                     <div class="mt-4 flex justify-between">
                         <div>
                             <h3 class="text-lg font-bold text-gray-700">
-                                <a href="detaille.php?id=<?php echo $img["id_annonce"] ?>">
+                                <a href="detaille.php?id=<?php echo $data[$i]["id_annonce"] ?>">
                                     <span aria-hidden="true" class="absolute inset-0"></span>
-                                    <?php echo $img["nom_ville"] ?>, Morocco
+                                    <?php echo $data[$i]["nom_ville"] ?>, Morocco
                                 </a>
                             </h3>
-                            <p class="mt-1 text-md text-gray-500">Hosted By <?php echo $img["nom"] ?> <?php echo $img["prenom"] ?></p>
-                            <p class="text-sm font-bold text-gray-900">MAD <?php echo number_format($img["prix_nuit"], 0, ',', ',') ?> night</p>
+                            <p class="mt-1 text-md text-gray-500">Hosted By <?php echo $data[$i]["nom"] ?> <?php echo $data[$i]["prenom"] ?></p>
+                            <p class="text-sm font-bold text-gray-900">MAD <?php echo number_format($data[$i]["prix_nuit"], 0, ',', ',') ?> night</p>
                         </div>
                     </div>
                 </div>

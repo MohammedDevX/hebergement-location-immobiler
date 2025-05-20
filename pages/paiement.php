@@ -3,13 +3,12 @@ session_start();
 
 require_once '../includes/connection.php';
 
-// Vérifie si l'utilisateur est connecté
+// verifie le user est connecter
 if (!isset($_SESSION['user_id'])) {
     header("Location: detaille.php?id=$_POST[accommodation_id]");
     die;
 }
 
-// Récupération des données du formulaire précédent
 $start_date = $_POST['start_date'] ?? null;
 $end_date = $_POST['end_date'] ?? null;
 $nights = $_POST['nights'] ?? null;
@@ -17,18 +16,18 @@ $price_per_night = $_POST['price_per_night'] ?? null;
 $service_fee = $_POST['service_fee'] ?? null;
 $total_price = $_POST['total_price'] ?? null;
 $travelers = $_POST['travelers'] ?? null;
-$accommodation_id = $_POST['accommodation_id'] ?? null;
-$accommodation_title = $_POST['accommodation_title'] ?? null;
-$accommodation_city = $_POST['accommodation_city'] ?? null;
+$accommodation_id = $_POST['accommodation_id'] ?? null; // id annonce
+$accommodation_title = $_POST['accommodation_title'] ?? null; // Nom annonce
+$accommodation_city = $_POST['accommodation_city'] ?? null; // Ville annonce
 
-// Calcul des montants pour la réservation
+// Calcul des montants pour la reservation 
 $montant_total_sejour = $nights * $price_per_night;
 $commission = round($montant_total_sejour * 0.03, 2);
 $montant_hote = $montant_total_sejour - $commission;
 
-// Si les données ne sont pas présentes dans POST, on utilise les données de session comme fallback
+// Si les donnes ne sont pas présentes dans POST on utilise les données de session
 if (!$start_date) {
-    // Récupération des données depuis la session
+    // Recuperation des données depuis la session
     $start_date = $_SESSION['date_debut'] ?? date('Y-m-d');
     $end_date = $_SESSION['date_fin'] ?? date('Y-m-d', strtotime('+3 days'));
     $total_price = $_SESSION['montant_total'] ?? 1000;
@@ -48,9 +47,9 @@ $_SESSION['montant_total'] = $total_price;
 $errors = []; // Tableau pour stocker les erreurs 
 $success = "";
 
-// Fonction de validation du numéro de carte
+// Fonction de validation du numero de carte
 function validateCardNumber($cardNumber) {
-    $cardNumber = preg_replace('/\D/', '', $cardNumber); // Enlever les non numériques
+    $cardNumber = preg_replace('/\D/', '', $cardNumber); // Enlever les non numeriques
 
     if (strlen($cardNumber) != 16) return false;
 
@@ -70,24 +69,24 @@ function validateCardNumber($cardNumber) {
     return $sum % 10 === 0;
 }
 
-// Fonction pour insérer toutes les dates de la réservation dans la table disponibilite
+// Fonction pour inserer toutes les dates de la reservation dans la table disponibilite
 function insertUnavailableDates($conn, $start_date, $end_date, $id_annonce) {
     // Convertir les dates en objets DateTime
     $start = new DateTime($start_date);
     $end = new DateTime($end_date);
     
     // Créer un intervalle d'un jour
-    $interval = new DateInterval('P1D');
+    $interval = new DateInterval('P1D'); // Tjib les dates mabin debut w fin 
     
     // Créer une période entre les deux dates
     $daterange = new DatePeriod($start, $interval, $end);
     
     // Préparer la requête d'insertion
     $query = "INSERT INTO disponibilite (date_dispo, id_annonce, created_at, updated_at) 
-              VALUES (:date_dispo, :id_annonce, NOW(), NOW())";
+            VALUES (:date_dispo, :id_annonce, NOW(), NOW())";
     $stmt = $conn->prepare($query);
     
-    // Insérer chaque date dans la table disponibilite
+    // Inserer chaque date dans la table disponibilite
     foreach ($daterange as $date) {
         $formatted_date = $date->format('Y-m-d');
         $stmt->bindParam(":date_dispo", $formatted_date);
@@ -95,7 +94,7 @@ function insertUnavailableDates($conn, $start_date, $end_date, $id_annonce) {
         $stmt->execute();
     }
     
-    // Ne pas oublier d'insérer également la date de fin
+    // Ne pas oublier d'inserer egalement la date de fin
     $formatted_end_date = $end->format('Y-m-d');
     $stmt->bindParam(":date_dispo", $formatted_end_date);
     $stmt->bindParam(":id_annonce", $id_annonce);
@@ -107,12 +106,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST["card-number"])) {
     $exp_date = trim($_POST["expiry-date"] ?? '');
     $cvv = trim($_POST["cvv"] ?? '');
     
-    // Extraction du mois et de l'année d'expiration
+    // Extraction du mois et de l'anne d'expiration
     $exp_parts = explode('/', $exp_date);
     $exp_mois = isset($exp_parts[0]) ? trim($exp_parts[0]) : '';
     $exp_annee = isset($exp_parts[1]) ? '20'.trim($exp_parts[1]) : '';
 
-    // Validation du numéro de carte
     if (!validateCardNumber($num_carte)) {
         $errors[] = "Numéro de carte invalide";
     }

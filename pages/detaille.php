@@ -682,7 +682,7 @@ console.log("Dates indisponibles:", parsedUnavailableDates);
       
   // Configuration initiale
   const PRICE_PER_NIGHT = <?php echo $data["prix_nuit"] ?>;
-  const SERVICE_FEE = 10; // 10% de frais de service
+  const SERVICE_FEE = 7; // 7% de frais de service
   
   // État du calendrier
   let currentViewDate = new Date(); 
