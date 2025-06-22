@@ -1,0 +1,85 @@
+/* Styles pour le calendrier */
+.calendar-day {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.calendar-day:hover:not(.text-gray-300):not(.day-selected):not(.day-in-range) {
+  background-color: #f3f4f6;
+  cursor: pointer;
+}
+
+.day-selected {
+  background-color: #000;
+  color: white !important;
+}
+
+.day-in-range {
+  background-color: #f3f4f6;
+}
+
+/* Styles pour les jours de la semaine */
+.text-gray-500 {
+  color: #6b7280;
+}
+
+/* Styles pour les flèches de navigation */
+#prevMonthBtn, #nextMonthBtn {
+  transition: all 0.2s ease;
+}
+
+#prevMonthBtn:hover, #nextMonthBtn:hover {
+  color: #000;
+}
+
+/* Animation pour le changement de mois */
+@keyframes fadeInCalendar {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#calendar1, #calendar2 {
+  animation: fadeInCalendar 0.3s ease-out;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.modal-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.gallery-item.show {
+  opacity: 1;
+  transform: translateY(0);
+}
