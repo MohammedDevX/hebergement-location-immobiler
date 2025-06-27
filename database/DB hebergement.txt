@@ -1,0 +1,143 @@
+CREATE DATABASE hebergement_particulier;
+
+CREATE TABLE administrateur(
+	id_admin INT AUTO_INCREMENT PRIMARY KEY,
+    nom_user VARCHAR(100) UNIQUE NOT NULL,
+    nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    mot_passe VARCHAR(255) NOT NULL,
+    tel VARCHAR(20),
+    photo_profil TEXT NOT NULL,	-- Ici on va enregister le url de l'image 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE locataire(
+	id_locataire INT AUTO_INCREMENT PRIMARY KEY,
+	nom_user VARCHAR(150) UNIQUE NOT NULL,
+    nom VARCHAR(100) NOT NULL,
+    prenom VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    mot_passe VARCHAR(255) NOT NULL,
+    tel VARCHAR(20),
+    photo_profil TEXT NOT NULL,	-- Ici on va enregister le url de l'image 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE hote (
+    id_hote INT AUTO_INCREMENT PRIMARY KEY,
+    id_locataire INT NOT NULL UNIQUE,
+    FOREIGN KEY (id_locataire) REFERENCES locataire(id_locataire),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE ville (
+	id_ville INT AUTO_INCREMENT PRIMARY KEY,
+    nom_ville varchar(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE annonce (
+    id_annonce INT AUTO_INCREMENT PRIMARY KEY,
+    titre VARCHAR(255) NOT NULL,
+    description_annonce TEXT,
+    adresse TEXT NOT NULL,
+    prix_nuit DECIMAL NOT NULL,
+    capacite INT NOT NULL,
+    type_logement ENUM('Appartement', 'Maison', 'Studio', 'Chambre') NOT NULL,
+    id_ville INT,
+    id_hote INT NOT NULL,
+    FOREIGN KEY (id_ville) REFERENCES ville(id_ville) ON DELETE SET NULL,
+    FOREIGN KEY (id_hote) REFERENCES hote(id_hote) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE report_annonce(
+	id_report_annonce INT AUTO_INCREMENT PRIMARY KEY,
+    message TEXT NOT NULL,
+    statut BOOLEAN DEFAULT FALSE,
+    id_locataire INT,
+	id_annonce INT,
+    id_admin INT DEFAULT NULL,
+    FOREIGN KEY (id_locataire) REFERENCES locataire(id_locataire) ON DELETE SET NULL,
+    FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE SET NULL,
+    FOREIGN KEY (id_admin) REFERENCES administrateur(id_admin) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE disponibilite(
+	id_disponibilite INT AUTO_INCREMENT PRIMARY KEY,
+    date_dispo DATE NOT NULL,
+    id_annonce INT NOT NULL,
+    FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE,
+    UNIQUE (id_annonce, date_dispo),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE photos(
+	id_photo INT AUTO_INCREMENT PRIMARY KEY,
+    photo TEXT NOT NULL,
+    titre VARCHAR(150),
+    id_annonce INT,
+    FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE reservation (
+    id_reservation INT AUTO_INCREMENT PRIMARY KEY,
+    date_debut DATE NOT NULL,
+    date_fin DATE NOT NULL,
+    montant DECIMAL NOT NULL,
+    date_paiement TIMESTAMP,
+    id_locataire INT NOT NULL,
+    id_annonce INT NOT NULL,
+    FOREIGN KEY (id_locataire) REFERENCES locataire(id_locataire) ON DELETE CASCADE,
+    FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE avis (
+    id_avis INT AUTO_INCREMENT PRIMARY KEY,
+    note INT CHECK (note BETWEEN 1 AND 5), -- Cntrainte pour ne pas deppaser 5 et pas inferieur à 1 
+    commentaire TEXT,
+    id_locataire INT NOT NULL,
+    id_annonce INT NOT NULL,
+    FOREIGN KEY (id_locataire) REFERENCES locataire(id_locataire) ON DELETE CASCADE,
+    FOREIGN KEY (id_annonce) REFERENCES annonce(id_annonce) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE report_avis(
+	id_report_avis INT AUTO_INCREMENT PRIMARY KEY,
+    message TEXT NOT NULL,
+    statut BOOLEAN DEFAULT FALSE,
+    id_locataire INT,
+	id_avis INT,
+    id_admin INT DEFAULT NULL,
+    FOREIGN KEY (id_locataire) REFERENCES locataire(id_locataire) ON DELETE SET NULL,
+    FOREIGN KEY (id_avis) REFERENCES avis(id_avis) ON DELETE SET NULL,
+    FOREIGN KEY (id_admin) REFERENCES administrateur(id_admin)ON DELETE SET NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE message (
+    id_message INT AUTO_INCREMENT PRIMARY KEY,
+    contenu TEXT NOT NULL,
+    lu BOOLEAN DEFAULT FALSE,
+    id_expediteur INT  NOT NULL,
+    id_destinataire INT NOT NULL,
+    FOREIGN KEY (id_expediteur) REFERENCES locataire(id_locataire) ON DELETE CASCADE,
+    FOREIGN KEY (id_destinataire) REFERENCES locataire(id_locataire) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
